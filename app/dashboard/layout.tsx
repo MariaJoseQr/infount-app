@@ -7,7 +7,7 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <main>{children}</main>
+      <main className="w-screen">{children}</main>
     </SidebarProvider>
   );
 }
