@@ -19,34 +19,40 @@ export function RecordImportDialog({
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 }) {
-  const [fileSelected, setFileSelected] = useState<File | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0] || null;
-    if (file) {
-      if (file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-        setFileSelected(file);
-        setError("");
-      } else {
-        setFileSelected(null);
-        setError("Por favor, seleccione un archivo .xlsx válido.");
-      }
+    const selectedFile = event.target.files?.[0];
+    if (selectedFile && selectedFile.name.endsWith(".xlsx")) {
+      setFile(selectedFile);
+      setError(null);
     } else {
-      setFileSelected(null);
+      setError("Por favor, selecciona un archivo con formato .xlsx");
+      setFile(null);
     }
   };
 
-  const handleImport = () => {
-    if (fileSelected) {
-      setIsLoading(true);
-      setTimeout(() => {
-          setIsLoading(false);
-          setIsOpen(false);
-        }, 2000);
-      }
-    };
+  const handleImport = async () => {
+    if (!file) return;
+
+    setIsLoading(true);
+
+    try {
+      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      
+  
+
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error al importar el archivo:", error);
+    } finally {
+      setIsLoading(false);
+      setFile(null);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -58,21 +64,21 @@ export function RecordImportDialog({
           <DialogDescription>
             <div className="flex items-center">
               Importa registros de forma masiva descargando el siguiente Excel:
+            </div>
+            <div className="flex items-center justify-end">
               <Button
-                
                 size="sm"
                 className="px-3 items-center border-primary text-primary"
                 variant="outline"
               >
                 <a
-                    href="/Formato.xlsx" // RUTA del formato - en la carpeta public 
-                    download
-                    className="flex items-center text-sm"
-                  >
-                    <span className="text-sm">Descargar formato</span>
-                    <Download className="h-4 w-4" />
-                  </a>
-                
+                  href="/Formato.xlsx" // RUTA del formato - en la carpeta public
+                  download
+                  className="flex items-center text-sm"
+                >
+                  <span className="text-sm pr-2">Descargar formato</span>
+                  <Download className="h-4 w-4" />
+                </a>
               </Button>
             </div>
           </DialogDescription>
@@ -86,10 +92,10 @@ export function RecordImportDialog({
             className="text-zinc-600 file:text-gray-800 cursor-pointer"
             onChange={handleFileChange}
           />
-          {error && <p className="text-red-500 text-sm">{error}</p>}
+          {error && <div className="text-red-500 text-sm">{error}</div>}
         </div>
         <DialogFooter className="sm:justify-start">
-          <DialogClose asChild>
+          {/* <DialogClose asChild>
             <Button 
               type="submit" 
               className="ml-auto"
@@ -98,7 +104,15 @@ export function RecordImportDialog({
               >
               {isLoading ? "Importando..." : "Importar"}
             </Button>
-          </DialogClose>
+          </DialogClose> */}
+
+          <Button
+            onClick={handleImport}
+            disabled={!file || isLoading} // Deshabilita si no hay archivo o está cargando
+            className="ml-auto"
+          >
+            {isLoading ? "Importando..." : "Importar"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
