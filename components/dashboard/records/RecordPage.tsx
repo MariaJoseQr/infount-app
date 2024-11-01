@@ -1,11 +1,13 @@
 import { TableDemo } from "./RecordTable";
 import { RecordImportDialog } from "./RecordImportDialog";
+import { RecordAddDialog } from "./RecordAddDialog";
 import { Button } from "@/components/ui/button";
 import { Import, Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function RecordPage() {
   const [recordImportDialogOpen, setRecordImportDialogOpen] = useState(false);
+  const [recordAddDialogOpen, setRecordAddDialogOpen] = useState(false);
 
   return (
     <>
@@ -18,7 +20,7 @@ export default function RecordPage() {
       <div className="flex ml-auto space-x-2">
         <Button
           className="text-white items-center"
-          onClick={() => setRecordImportDialogOpen(true)}
+          onClick={() => setRecordAddDialogOpen(true)}
         >
           <Plus className="w-32 h-32" />
           <span className="text-base">Agregar Registro</span>
@@ -35,6 +37,10 @@ export default function RecordPage() {
       <div className="pt-4">
         <TableDemo />
       </div>
+      <RecordAddDialog
+        isOpen={recordAddDialogOpen}
+        setIsOpen={setRecordAddDialogOpen}
+      />
       <RecordImportDialog
         isOpen={recordImportDialogOpen}
         setIsOpen={setRecordImportDialogOpen}
