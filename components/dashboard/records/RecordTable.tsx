@@ -9,45 +9,44 @@ import {
 } from "@/components/ui/table";
 
 const invoices = [
-  {
-    invoice: "INV001",
-    paymentStatus: "055-2017-EAPInf",
-    totalAmount: "$250.00",
-    paymentMethod: "TRABAJO DE GRADUACIÓN",
+  { invoice: "INV001",
+    paymentStatus: "055-2017-EAPInf", 
+    totalAmount: "$250.00", 
+    paymentMethod: "TRABAJO DE GRADUACIÓN" 
   },
-  {
-    invoice: "INV002",
-    paymentStatus: "088-2016-EAPInf",
-    totalAmount: "$150.00",
-    paymentMethod: "PROYECTO DE TESIS",
+  { invoice: "INV002", 
+    paymentStatus: "088-2016-EAPInf", 
+    totalAmount: "$150.00", 
+    paymentMethod: "PROYECTO DE TESIS" 
   },
-  {
-    invoice: "INV003",
-    paymentStatus: "088-2016-EAPInf",
-    totalAmount: "$350.00",
-    paymentMethod: "TRABAJO DE GRADUACIÓN",
-  },
-  {
-    invoice: "INV004",
-    paymentStatus: "088-2016-EAPInf",
-    totalAmount: "$450.00",
-    paymentMethod: "PROYECTO DE TESIS",
-  },
-  {
-    invoice: "INV005",
-    paymentStatus: "088-2016-EAPInf",
-    totalAmount: "$550.00",
-    paymentMethod: "TRABAJO DE GRADUACIÓN",
-  },
-  {
-    invoice: "INV006",
-    paymentStatus: "088-2016-EAPInf",
-    totalAmount: "$200.00",
-    paymentMethod: "PROYECTO DEL TRABAJO DE GRADUACIÓN",
-  },
+  { invoice: "INV003", 
+    paymentStatus: "088-2016-EAPInf", 
+    totalAmount: "$350.00", 
+    paymentMethod: "TRABAJO DE GRADUACIÓN" },
+  { invoice: "INV004", 
+    paymentStatus: "088-2016-EAPInf", 
+    totalAmount: "$450.00", 
+    paymentMethod: "PROYECTO DE TESIS" },
+  { invoice: "INV005", 
+    paymentStatus: "088-2016-EAPInf", 
+    totalAmount: "$550.00", 
+    paymentMethod: "TRABAJO DE GRADUACIÓN" },
+  { invoice: "INV006", 
+    paymentStatus: "088-2016-EAPInf", 
+    totalAmount: "$200.00", 
+    paymentMethod: "PROYECTO DEL TRABAJO DE GRADUACIÓN" },
 ];
 
-export function TableDemo() {
+interface TableDemoProps {
+  filter?: string;
+}
+
+export function TableDemo({ filter }: TableDemoProps) {
+ 
+  const filteredInvoices = filter === "todos" || !filter
+    ? invoices
+    : invoices.filter((invoice) => invoice.paymentMethod === filter);
+
   return (
     <Table>
       <TableHeader>
@@ -59,7 +58,7 @@ export function TableDemo() {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {invoices.map((invoice) => (
+        {filteredInvoices.map((invoice) => (
           <TableRow key={invoice.invoice}>
             <TableCell className="font-medium">{invoice.invoice}</TableCell>
             <TableCell>{invoice.paymentStatus}</TableCell>
@@ -73,7 +72,7 @@ export function TableDemo() {
           <TableCell colSpan={3} className="text-right">
             Total de registros
           </TableCell>
-          <TableCell className="text-right">6</TableCell>
+          <TableCell className="text-right">{filteredInvoices.length}</TableCell>
         </TableRow>
       </TableFooter>
     </Table>
