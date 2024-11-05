@@ -1,13 +1,11 @@
 import { TableDemo } from "./RecordTable";
 import { RecordImportDialog } from "./RecordImportDialog";
-import { SelectDemo } from "./RecordFilter";
 import { Button } from "@/components/ui/button";
 import { Import, Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function RecordPage() {
   const [recordImportDialogOpen, setRecordImportDialogOpen] = useState(false);
-  const [selectedType, setSelectedType] = useState("");
 
   return (
     <>
@@ -34,17 +32,8 @@ export default function RecordPage() {
           <span className="text-base">Importar</span>
         </Button>
       </div>
-
       <div className="pt-4">
-        <p className="mt-2 font-bold">Filtros:</p>
-        <div className="mt-2 flex items-center space-x-2">
-          <p>Tipo de Investigación:</p>
-          <SelectDemo onSelect={setSelectedType} />
-        </div>
-      </div>
-
-      <div className="pt-4">
-        <TableDemo filter={selectedType} />
+        <TableDemo />
       </div>
       <RecordImportDialog
         isOpen={recordImportDialogOpen}
