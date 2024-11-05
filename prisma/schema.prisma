@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model School {
+  id     Int    @id @default(autoincrement())
+  name   String
+
+  // School puede aparecer una o más veces en User
+  users  User[]
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  password      String
+  name          String
+  email         String    @unique
+  cellphone     String
+
+  // FK hacía School
+  schoolId      Int      
+  school        School    @relation(fields: [schoolId], references: [id])
+
+  // Relaciones 1 a 1
+  secretary     Secretary?
+  professor     Professor?
+}
+
+model Secretary {
+  id       Int    @id @default(autoincrement())
+  code     String @unique
+
+  // Relación 1 a 1 con User
+  userId   Int    @unique
+  user     User   @relation(fields: [userId], references: [id])
+}
+
+model Professor {
+  id       Int     @id @default(autoincrement())
+  code     String  @unique
+
+  // FK hacia Grade
+  gradeId  Int     
+  grade    Grade   @relation(fields: [gradeId], references: [id])
+
+  // El Profesor puede aparecer una o más veces en las tablas ProfessorTesis, Procedure, Constancy
+  theses   ProfessorTesis[] 
+  procedures Procedure[]
+  constancies Constancy[]
+  
+  // Relación 1 a 1 con User
+  userId    Int    @unique 
+  user      User   @relation(fields: [userId], references: [id]) // Relación inversa
+}
+
+model Grade {
+  id          Int        @id @default(autoincrement())
+  name        String
+  abbreviation String
+
+  // 1 : N -> El grado puede aparecer en uno o más Profesores
+  professors  Professor[]
+}
+
+model Thesis {
+  id                Int     @id @default(autoincrement())
+  name              String
+  resolutionCode    String
+  date              DateTime
+  firstStudentName  String
+  secondStudentName String
+
+  // FK hacia ThesisType
+  typeId            Int     
+  type              ThesisType @relation(fields: [typeId], references: [id])
+
+  professorsThesis  ProfessorTesis[] // Relación con Professor a través de ProfessorTesis
+  constancies       Constancy[] @relation("ConstancyThesis") // Relación con Constancy a través de ConstancyThesis
+  constancyThesis   ConstancyThesis[] // Relación inversa con ConstancyThesis
+}
+
+// Tabla intermedia
+model ProfessorTesis {
+  id        Int     @id @default(autoincrement())
+  professorId Int
+  thesisId    Int
+  chargeId    Int
+  charge      Charge   @relation(fields: [chargeId], references: [id])
+  professor   Professor @relation(fields: [professorId], references: [id])
+  thesis      Thesis    @relation(fields: [thesisId], references: [id])
+}
+
+model Charge {
+  id       Int        @id @default(autoincrement())
+  name     String
+  professorsThesis ProfessorTesis[] // Relación 1 a muchos con ProfessorTesis
+}
+
+model ThesisType {
+  id          Int      @id @default(autoincrement())
+  name        String @unique
+  theses      Thesis[] // Relación 1 a muchos con Thesis
+  procedures  Procedure[] // Relación 1 a muchos con Procedure
+}
+
+model Procedure {
+  id              Int        @id @default(autoincrement())
+  endDate         DateTime
+  thesisAmount    Int
+  professorId     Int       // FK hacia Professor
+  professor       Professor  @relation(fields: [professorId], references: [id])
+  typeId          Int       // FK hacia ProcedureType
+  type            ProcedureType @relation(fields: [typeId], references: [id])
+  stateId         Int       // FK hacia State
+  state           State     @relation(fields: [stateId], references: [id])
+  thesisTypeId    Int       // FK hacia ThesisType
+  thesisType      ThesisType @relation(fields: [thesisTypeId], references: [id])
+  constancyId     Int?      @unique // FK hacia Constancy, debe ser único para relación 1 a 1
+  constancy       Constancy? @relation(fields: [constancyId], references: [id]) // Relación 1 a 1 con Constancy
+}
+
+model ProcedureType {
+  id          Int        @id @default(autoincrement())
+  name        String
+  procedures  Procedure[] // Relación 1 a muchos con Procedure
+}
+
+model State {
+  id          Int        @id @default(autoincrement())
+  name        String
+  procedures  Procedure[] // Relación 1 a muchos con Procedure
+}
+
+model Constancy {
+  id                Int       @id @default(autoincrement())
+  registrationNumber String    @unique
+  fileNumber        String
+  date              DateTime
+  professorId       Int       // FK hacia Professor
+  professor         Professor  @relation(fields: [professorId], references: [id])
+  procedureId       Int?      // FK hacia Procedure, puede ser nulo
+  procedure         Procedure? // Relación 1 a 1 con Procedure
+  theses            Thesis[]   @relation("ConstancyThesis") // Relación con Thesis a través de ConstancyThesis
+  constancyThesis   ConstancyThesis[] // Relación inversa con ConstancyThesis
+}
+
+model ConstancyThesis {
+  id        Int     @id @default(autoincrement())
+  constancyId Int
+  thesisId    Int
+  constancy   Constancy @relation(fields: [constancyId], references: [id])
+  thesis      Thesis    @relation(fields: [thesisId], references: [id])
+}
