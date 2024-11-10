@@ -1,55 +1,105 @@
 "use client";
 import Image from "next/image";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-
+import { useState } from "react";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
   CardContent,
   CardFooter,
+  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+/* import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from "@/components/ui/form"; */
+
+
+
+const loginSchema = z.object({
+  email: z.string().email("Correo inválido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
+const registrationSchema = z.object({
+  fullName: z.string().min(1, "Nombres y apellidos son requeridos"),
+  code: z.string().min(1, "Código es requerido"),
+  email: z.string().email("Correo inválido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  researchArea: z.string().optional(),
+  office: z.string().optional(),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
 
-  const [email, setEmail] = useState<string>("");
+  /* const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [forgotEmail, setForgotEmail] = useState<string>("");
+  const [forgotEmail, setForgotEmail] = useState<string>(""); */
   const [forgotPassword, setForgotPassword] = useState<boolean>(false);
+  const [registerMode, setRegisterMode] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
+  const {
+    register: loginRegister,
+    handleSubmit: handleLoginSubmit,
+    formState: { errors: loginErrors, isValid: isLoginValid },  
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange", 
   });
 
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const {
+    register: registerRegister,
+    handleSubmit: handleRegisterSubmit,
+    formState: { errors: registerErrors, isValid: isRegisterValid},  
+  } = useForm<RegistrationFormData>({
+    resolver: zodResolver(registrationSchema),
+    mode: "onChange", 
+  });
+
+/*   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   };
-
-  const handleForgotEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setForgotEmail(e.target.value);
-  };
-
-  const handleForgotPassword = (e: FormEvent) => {
-    e.preventDefault();
-    // TODO: forgot email logic
-    console.log("Forgot email:", forgotEmail);
-  };
-
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
+ */
+  const handleLogin = async (data: LoginFormData) => {
+    setIsLoading(true);
     try {
-      console.log("data: ", e);
-    } catch {
-    } finally {
+      console.log("Iniciando sesión con:", data);
       router.push("/dashboard");
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (data: RegistrationFormData) => {
+    setIsLoading(true);
+    try {
+      console.log("Registrando usuario:", data);
+    } catch (error) {
+      console.error("Error registrando usuario:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -57,31 +107,33 @@ export default function LoginForm() {
     <Card className="w-full max-w-sm">
       <CardHeader className="items-center">
         <Image
-          src="/bildin-logo-black-text.svg"
-          alt="Bildin logo"
+          src="/infologo.png"
+          alt="Info Logo"
           width={166}
           height={56}
         />
+        <CardTitle className="text-primary">
+            {registerMode ? "Registro de Usuario" : "ingreso de Usuario"}
+          </CardTitle>
       </CardHeader>
       {forgotPassword ? (
         <>
           <CardContent>
-            <form onSubmit={handleForgotPassword}>
-              <div className="mb-4">
-                <Label htmlFor="email">Correo:</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={forgotEmail}
-                  onChange={handleForgotEmailChange}
-                  required
-                  placeholder={"enterEmail"}
-                  className="mt-2"
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                {"sendEmail"}
-              </Button>
+            <form onSubmit={(e) => e.preventDefault()}>
+                <div className="mb-4">
+                  <Label htmlFor="email">Correo:</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    {...loginRegister("email")}
+                    placeholder="Ingrese su correo"
+                    className="mt-2"
+                  />
+                  {loginErrors.email && <p className="text-red-500 text-sm">{loginErrors.email.message}</p>}
+                </div>
+                <Button  className="w-full" onClick={() => setForgotPassword(false)} disabled={isLoading}>
+                    {isLoading ? "Enviando..." : "Enviar correo electrónico"}
+                  </Button>
             </form>
           </CardContent>
           <CardFooter className="justify-center items-center">
@@ -89,50 +141,108 @@ export default function LoginForm() {
               className="text-sm text-gray-600 hover:underline cursor-pointer"
               onClick={() => setForgotPassword(false)}
             >
-              {"alreadyUser"}
+              {"Regresar"}
             </a>
           </CardFooter>
         </>
+      ) : registerMode ? (
+          <CardContent >
+                <form onSubmit={handleRegisterSubmit(handleRegister)}>
+                  <div className="mb-4">
+                      <Label htmlFor="fullName">Nombres y Apellidos:</Label>
+                      <Input id="fullName" {...registerRegister("fullName")} className="mt-2" />
+                      {registerErrors.fullName && <p className="text-red-500 text-sm">{registerErrors.fullName.message}</p>}
+                  </div>
+                  <div className="mb-4">
+                      <Label htmlFor="code">Código:</Label>
+                      <Input id="code" {...registerRegister("code")} className="mt-2" />
+                      {registerErrors.code && <p className="text-red-500 text-sm">{registerErrors.code.message}</p>}
+                  </div>
+                  <div className="mb-4">
+                      <Label htmlFor="email">Correo:</Label>
+                      <Input id="email" type="email" {...registerRegister("email")} className="mt-2" />
+                      {registerErrors.email && <p className="text-red-500 text-sm">{registerErrors.email.message}</p>}
+                  </div>
+                  <div className="mb-4">
+                      <Label htmlFor="password">Contraseña:</Label>
+                      <Input id="password" type="password" {...registerRegister("password")} className="mt-2" />
+                      {registerErrors.password && <p className="text-red-500 text-sm">{registerErrors.password.message}</p>}
+                  </div>
+                  <div className="mb-4">
+                      <Label htmlFor="researchArea">Área de Investigación:</Label>
+                      <Input id="researchArea" {...registerRegister("researchArea")} className="mt-2" />
+                  </div>
+                  <div className="mb-4">
+                      <Label htmlFor="office">Oficina:</Label>
+                      <Input id="office" {...registerRegister("office")} className="mt-2" />
+                  </div>
+                  <Button 
+                      onClick={handleRegisterSubmit(handleRegister)} 
+                      disabled={isLoading || !isRegisterValid}
+                      className="w-full"
+                      >
+                      {isLoading ? "Registrando..." : "Registrarse"}
+                  </Button>
+              </form>
+              <CardFooter className="justify-center items-center">
+                <a
+                  className=" text-sm text-gray-600 hover:underline cursor-pointer"
+                  onClick={() => setRegisterMode(false)}
+                >
+                  ¿Ya tienes una cuenta? Iniciar sesión
+                </a>
+              </CardFooter>
+          </CardContent>
       ) : (
         <>
           <CardContent>
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleLoginSubmit(handleLogin)}>
               <div className="mb-4">
-                <Label htmlFor="email">{"email"}:</Label>
+                <Label htmlFor="email">{"Correo"}:</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  required
-                  placeholder={"enterEmail"}
-                  className="mt-2"
-                />
+                    id="email"
+                    type="email"
+                    {...loginRegister("email")}
+                    placeholder="Ingrese su correo"
+                    className="mt-2"
+                  />
+                  {loginErrors.email && <p className="text-red-500 text-sm">{loginErrors.email.message}</p>}
               </div>
               <div className="mb-6">
-                <Label htmlFor="password">{"password"}:</Label>
+                <Label htmlFor="password">Contraseña:</Label>
                 <Input
                   id="password"
                   type="password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  required
-                  placeholder={"enterPassword"}
+                  {...loginRegister("password")}
+                  placeholder="Ingrese su contraseña"
                   className="mt-2"
                 />
+                {loginErrors.password && <p className="text-red-500 text-sm">{loginErrors.password.message}</p>}
+                <a
+                  className="text-sm text-gray-600 hover:underline cursor-pointer"
+                  onClick={() => setForgotPassword(true)}
+                >
+                  Has olvidado tu contraseña
+                </a>
               </div>
-              <Button type="submit" className="w-full">
-                {"login"}
-              </Button>
+
+              <Button
+                  onClick={handleLoginSubmit(handleLogin)}
+                  disabled={isLoading || !isLoginValid}
+                  className="w-full"
+                >
+                  {isLoading ? "Ingresando..." : "Ingresar"}
+            </Button>
             </form>
           </CardContent>
           <CardFooter className="justify-center items-center">
-            <a
-              className="text-sm text-gray-600 hover:underline cursor-pointer"
-              onClick={() => setForgotPassword(true)}
-            >
-              {"forgotPassword"}
-            </a>
+              <a
+                  className="text-sm text-gray-600 hover:underline cursor-pointer"
+                  onClick={() => setRegisterMode(true)}
+                >
+                  ¿No tienes una cuenta? Registrarse
+                </a>
+
           </CardFooter>
         </>
       )}
