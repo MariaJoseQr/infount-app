@@ -104,7 +104,9 @@ export default function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card 
+        className="w-[500px] max-h-[85vh] overflow-y-auto"
+        style={{ clipPath: 'inset(0 round 0.45rem)' }}>
       <CardHeader className="items-center">
         <Image
           src="/infologo.png"
@@ -113,7 +115,7 @@ export default function LoginForm() {
           height={56}
         />
         <CardTitle className="text-primary">
-            {registerMode ? "Registro de Usuario" : "ingreso de Usuario"}
+            {registerMode ? "Registro de Usuario" : "Ingreso de Usuario"}
           </CardTitle>
       </CardHeader>
       {forgotPassword ? (
@@ -131,7 +133,10 @@ export default function LoginForm() {
                   />
                   {loginErrors.email && <p className="text-red-500 text-sm">{loginErrors.email.message}</p>}
                 </div>
-                <Button  className="w-full" onClick={() => setForgotPassword(false)} disabled={isLoading}>
+                <Button  
+                    className="w-full  text-white bg-primary hover:bg-primary-dark" 
+                    onClick={() => setForgotPassword(false)} 
+                    disabled={isLoading}>
                     {isLoading ? "Enviando..." : "Enviar correo electrónico"}
                   </Button>
             </form>
@@ -150,36 +155,68 @@ export default function LoginForm() {
                 <form onSubmit={handleRegisterSubmit(handleRegister)}>
                   <div className="mb-4">
                       <Label htmlFor="fullName">Nombres y Apellidos:</Label>
-                      <Input id="fullName" {...registerRegister("fullName")} className="mt-2" />
+                      <Input 
+                          id="fullName" {...registerRegister("fullName")} 
+                          className=" mt-2 w-full text-gray-600" 
+                          placeholder="Ingrese su nombre completo"
+                          /* {...field} */
+                          />
                       {registerErrors.fullName && <p className="text-red-500 text-sm">{registerErrors.fullName.message}</p>}
                   </div>
                   <div className="mb-4">
                       <Label htmlFor="code">Código:</Label>
-                      <Input id="code" {...registerRegister("code")} className="mt-2" />
+                      <Input 
+                          id="code" {...registerRegister("code")} 
+                          className=" mt-2 w-full text-gray-600" 
+                          placeholder="Ingrese su codigo de usuario"
+                          /* {...field} */
+                      />
                       {registerErrors.code && <p className="text-red-500 text-sm">{registerErrors.code.message}</p>}
                   </div>
                   <div className="mb-4">
                       <Label htmlFor="email">Correo:</Label>
-                      <Input id="email" type="email" {...registerRegister("email")} className="mt-2" />
+                      <Input
+                          id="email" 
+                          type="email" {...registerRegister("email")}
+                          className=" mt-2 w-full text-gray-600" 
+                          placeholder="Ingrese su correo electronico"
+                          /* {...field} */
+                      />
                       {registerErrors.email && <p className="text-red-500 text-sm">{registerErrors.email.message}</p>}
                   </div>
                   <div className="mb-4">
                       <Label htmlFor="password">Contraseña:</Label>
-                      <Input id="password" type="password" {...registerRegister("password")} className="mt-2" />
+                      <Input 
+                          id="password" 
+                          type="password" {...registerRegister("password")} 
+                          className=" mt-2 w-full text-gray-600" 
+                          placeholder="Ingrese su contraseña"
+                          /* {...field} */
+                        />
                       {registerErrors.password && <p className="text-red-500 text-sm">{registerErrors.password.message}</p>}
                   </div>
                   <div className="mb-4">
                       <Label htmlFor="researchArea">Área de Investigación:</Label>
-                      <Input id="researchArea" {...registerRegister("researchArea")} className="mt-2" />
+                      <Input 
+                          id="researchArea" {...registerRegister("researchArea")} 
+                          className=" mt-2 w-full text-gray-600" 
+                          placeholder="Ingrese su área de investigación"
+                          /* {...field} */
+                        />
                   </div>
                   <div className="mb-4">
                       <Label htmlFor="office">Oficina:</Label>
-                      <Input id="office" {...registerRegister("office")} className="mt-2" />
+                      <Input 
+                          id="office" {...registerRegister("office")} 
+                          className=" mt-2 w-full text-gray-600" 
+                          placeholder="Ingrese su oficina"
+                          /* {...field} */
+                        />
                   </div>
                   <Button 
                       onClick={handleRegisterSubmit(handleRegister)} 
                       disabled={isLoading || !isRegisterValid}
-                      className="w-full"
+                      className="w-full  text-white bg-primary hover:bg-primary-dark"
                       >
                       {isLoading ? "Registrando..." : "Registrarse"}
                   </Button>
@@ -229,7 +266,7 @@ export default function LoginForm() {
               <Button
                   onClick={handleLoginSubmit(handleLogin)}
                   disabled={isLoading || !isLoginValid}
-                  className="w-full"
+                  className="w-full text-white bg-primary hover:bg-primary-dark"
                 >
                   {isLoading ? "Ingresando..." : "Ingresar"}
             </Button>
