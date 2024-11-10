@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 import RecordPage from "@/components/dashboard/records/RecordPage";
+import ProfessorPage from "@/components/dashboard/professors/ProfessorPage";
 import { CircleUserRound, LogOut, Settings, Menu } from "lucide-react";
 import {
   DropdownMenu,
@@ -50,7 +51,7 @@ export default function DashboardPage() {
           <SidebarTrigger />
         </div>
         <div className="flex flex-col flex-1 mb-4 mx-4 sm:mx-6 md:mx-8 lg:mr-10 xl:mr-12 mt-16 gap-2">
-          {activePage === "#docentes" && <RecordPage />}
+          {activePage === "#docentes" && <ProfessorPage />}
           {activePage === "#tramites" && <RecordPage />}
           {activePage === "#registros" && <RecordPage />}
         </div>
