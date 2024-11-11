@@ -2,6 +2,11 @@
 CREATE TABLE `School` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -14,6 +19,11 @@ CREATE TABLE `User` (
     `name` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `cellphone` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
     `schoolId` INTEGER NOT NULL,
 
     UNIQUE INDEX `User_username_key`(`username`),
@@ -25,6 +35,11 @@ CREATE TABLE `User` (
 CREATE TABLE `Secretary` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
     `userId` INTEGER NOT NULL,
 
     UNIQUE INDEX `Secretary_code_key`(`code`),
@@ -36,6 +51,11 @@ CREATE TABLE `Secretary` (
 CREATE TABLE `Professor` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
     `gradeId` INTEGER NOT NULL,
     `userId` INTEGER NOT NULL,
 
@@ -49,6 +69,11 @@ CREATE TABLE `Grade` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `abbreviation` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -58,9 +83,14 @@ CREATE TABLE `Thesis` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
     `resolutionCode` VARCHAR(191) NOT NULL,
-    `date` DATETIME(3) NOT NULL,
+    `date` DATETIME(3) NULL,
     `firstStudentName` VARCHAR(191) NOT NULL,
     `secondStudentName` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
     `typeId` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
@@ -72,6 +102,11 @@ CREATE TABLE `ProfessorTesis` (
     `professorId` INTEGER NOT NULL,
     `thesisId` INTEGER NOT NULL,
     `chargeId` INTEGER NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -80,6 +115,11 @@ CREATE TABLE `ProfessorTesis` (
 CREATE TABLE `Charge` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -88,6 +128,11 @@ CREATE TABLE `Charge` (
 CREATE TABLE `ThesisType` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
 
     UNIQUE INDEX `ThesisType_name_key`(`name`),
     PRIMARY KEY (`id`)
@@ -98,6 +143,11 @@ CREATE TABLE `Procedure` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `endDate` DATETIME(3) NOT NULL,
     `thesisAmount` INTEGER NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
     `professorId` INTEGER NOT NULL,
     `typeId` INTEGER NOT NULL,
     `stateId` INTEGER NOT NULL,
@@ -112,6 +162,11 @@ CREATE TABLE `Procedure` (
 CREATE TABLE `ProcedureType` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -120,6 +175,11 @@ CREATE TABLE `ProcedureType` (
 CREATE TABLE `State` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `name` VARCHAR(191) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -130,6 +190,11 @@ CREATE TABLE `Constancy` (
     `registrationNumber` VARCHAR(191) NOT NULL,
     `fileNumber` VARCHAR(191) NOT NULL,
     `date` DATETIME(3) NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
     `professorId` INTEGER NOT NULL,
     `procedureId` INTEGER NULL,
 
@@ -139,20 +204,15 @@ CREATE TABLE `Constancy` (
 
 -- CreateTable
 CREATE TABLE `ConstancyThesis` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
     `constancyId` INTEGER NOT NULL,
     `thesisId` INTEGER NOT NULL,
+    `isDeleted` BOOLEAN NOT NULL DEFAULT false,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `creationUserId` INTEGER NULL,
+    `updatedAt` DATETIME(3) NULL,
+    `updateUserId` INTEGER NULL,
 
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `_ConstancyThesis` (
-    `A` INTEGER NOT NULL,
-    `B` INTEGER NOT NULL,
-
-    UNIQUE INDEX `_ConstancyThesis_AB_unique`(`A`, `B`),
-    INDEX `_ConstancyThesis_B_index`(`B`)
+    PRIMARY KEY (`constancyId`, `thesisId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
@@ -202,9 +262,3 @@ ALTER TABLE `ConstancyThesis` ADD CONSTRAINT `ConstancyThesis_constancyId_fkey` 
 
 -- AddForeignKey
 ALTER TABLE `ConstancyThesis` ADD CONSTRAINT `ConstancyThesis_thesisId_fkey` FOREIGN KEY (`thesisId`) REFERENCES `Thesis`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_ConstancyThesis` ADD CONSTRAINT `_ConstancyThesis_A_fkey` FOREIGN KEY (`A`) REFERENCES `Constancy`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_ConstancyThesis` ADD CONSTRAINT `_ConstancyThesis_B_fkey` FOREIGN KEY (`B`) REFERENCES `Thesis`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
