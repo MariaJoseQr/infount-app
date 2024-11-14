@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; 
 import {
   Dialog,
   DialogContent,
@@ -38,6 +38,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, ChevronsUpDown } from "lucide-react";
 
+
 export function RecordAddDialog({
   isOpen,
   setIsOpen,
@@ -45,7 +46,8 @@ export function RecordAddDialog({
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  record: any | undefined;
+  record: any | undefined; 
+
 }) {
   const [thesisTypes, setThesisTypes] = useState<
     Array<{ id: string; name: string }>
@@ -55,6 +57,8 @@ export function RecordAddDialog({
   >([]);
   const [isLoading, setIsLoading] = useState(false);
 
+
+    
   useEffect(() => {
     axios
       .get("/api/thesis-types")
@@ -121,6 +125,8 @@ export function RecordAddDialog({
     }
   }, [isOpen, record, form]);
 
+  
+
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
@@ -141,14 +147,19 @@ export function RecordAddDialog({
     try {
       if (!record) {
         //TODO: ENDPOINT POST RECORD
+        console.log("Crear registro:", recordData);
       } else {
         //TODO: ENDPOINT PUT RECORD
+        console.log("Actualizar registro:", recordData)
       }
     } catch (error) {
       console.error("Error submitting record:", error);
     } finally {
       setIsLoading(false);
+      setIsOpen(false);
     }
+    
+   
   };
 
   return (
@@ -568,7 +579,7 @@ export function RecordAddDialog({
             </div>
             <DialogFooter className="mt-4">
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Guardando..." : "Guardar"}
+              {isLoading ? "Guardando..." : record ? "Actualizar" : "Guardar"}
               </Button>
             </DialogFooter>
           </form>

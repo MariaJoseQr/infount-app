@@ -23,6 +23,7 @@ export function SelectDemo({ onSelect }: SelectDemoProps) {
           <SelectItem value="todos">Todos</SelectItem>
           <SelectItem value="TRABAJO DE GRADUACIÓN">Trabajo de Graduación</SelectItem>
           <SelectItem value="PROYECTO DE TESIS">Proyecto de Tesis</SelectItem>
+          <SelectItem value="SUFICIENCIA PROFESIONAL">Suficiencia Profesional</SelectItem>
           <SelectItem value="PROYECTO DEL TRABAJO DE GRADUACIÓN">Proyecto del Trabajo de Graduación</SelectItem>
         </SelectGroup>
       </SelectContent>

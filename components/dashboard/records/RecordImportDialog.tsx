@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  /* DialogClose, */
+  // DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -95,7 +95,7 @@ export function RecordImportDialog({
           {error && <div className="text-red-500 text-sm">{error}</div>}
         </div>
         <DialogFooter className="sm:justify-start">
-          {/* <DialogClose asChild>
+           {/* <DialogClose asChild>
             <Button 
               type="submit" 
               className="ml-auto"
@@ -104,7 +104,7 @@ export function RecordImportDialog({
               >
               {isLoading ? "Importando..." : "Importar"}
             </Button>
-          </DialogClose> */}
+          </DialogClose>  */}
 
           <Button
             onClick={handleImport}
