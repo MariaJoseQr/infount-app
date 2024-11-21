@@ -21,6 +21,7 @@ export class ThesisService {
     static async createThesis(data: { name: string; resolutionCode: string; date: string; firstStudentName: string; secondStudentName?: string; typeId: number; professors: { professorId: number; chargeId: number }[]; }) {
         const { name, resolutionCode, date, firstStudentName, typeId, professors } = data;
 
+        console.log("Breakpoint 2: ", data);
         // Validar datos obligatorios
         if (!name || !resolutionCode || !firstStudentName || !typeId || !professors || professors.length === 0) {
             throw new Error("Faltan datos necesarios para crear la tesis");

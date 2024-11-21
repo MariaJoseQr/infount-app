@@ -20,7 +20,9 @@ export async function GET() {
 //INSERT
 export async function POST(request: NextRequest) {
     try {
+        console.log("Breakpoint: ");
         const { name, resolutionCode, date, firstStudentName, secondStudentName, typeId, professors } = await request.json();
+
 
         const newThesis = await ThesisService.createThesis({
             name,
@@ -103,6 +105,7 @@ export async function POST(request: NextRequest) {
 //UPDATE
 export async function PUT(request: NextRequest) {
     try {
+
         const { id, name, resolutionCode, date, firstStudentName, secondStudentName, typeId, professors, } = await request.json();
 
         // Validación de los campos necesarios

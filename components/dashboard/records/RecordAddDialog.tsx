@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button"; 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -46,22 +46,22 @@ export function RecordAddDialog({
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  record: any | undefined; 
+  record: any | undefined;
 
 }) {
   const [thesisTypes, setThesisTypes] = useState<
     Array<{ id: string; name: string }>
   >([]);
   const [professors, setProfessors] = useState<
-    Array<{ id: string; name: string }>
+    Array<{ id: string; user: { name: string } }>
   >([]);
   const [isLoading, setIsLoading] = useState(false);
 
 
-    
+
   useEffect(() => {
     axios
-      .get("/api/thesis-types")
+      .get("/api/thesis-type")
       .then((response) => setThesisTypes(response.data))
       .catch((error) =>
         console.error("Error obteniendo tipos de tesis:", error)
@@ -70,14 +70,15 @@ export function RecordAddDialog({
 
   useEffect(() => {
     axios
-      .get("/api/professors")
-      .then((response) => setProfessors(response.data))
+      .get("/api/professor")
+      .then((response) => setProfessors(response.data.data))
       .catch((error) =>
         console.error("Error obteniendo lista de profesores:", error)
       );
   }, []);
 
   const formSchema = z.object({
+    id: z.number().optional(),
     thesisTypeId: z.string().min(1, "El campo es obligatorio"),
     thesisName: z.string().min(1, "El campo es obligatorio"),
     bachelor1: z.string().min(1, "El campo es obligatorio"),
@@ -93,6 +94,7 @@ export function RecordAddDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      id: undefined,
       thesisTypeId: "",
       thesisName: "",
       bachelor1: "",
@@ -106,51 +108,80 @@ export function RecordAddDialog({
     },
   });
 
+  // useEffect(() => {
+  //   if (isOpen) {
+  //     form.reset({
+  //       thesisTypeId: record?.thesisTypeId || "",
+  //       thesisName: record?.thesisName || "",
+  //       bachelor1: record?.bachelor1 || "",
+  //       bachelor2: record?.bachelor2 || "",
+  //       resolutionCode: record?.resolutionCode || "",
+  //       defenseDate: record?.defenseDate
+  //         ? new Date(record.defenseDate)
+  //         : undefined,
+  //       presidentId: record?.presidentId || "",
+  //       secretaryId: record?.secretaryId || "",
+  //       vocalId: record?.vocalId || "",
+  //       advisorId: record?.advisorId || "",
+  //     });
+  //   }
+  // }, [isOpen, record, form]);
+
   useEffect(() => {
     if (isOpen) {
+      console.log("RECORD RECIBIDO:", record)
       form.reset({
-        thesisTypeId: record?.thesisTypeId || "",
-        thesisName: record?.thesisName || "",
-        bachelor1: record?.bachelor1 || "",
-        bachelor2: record?.bachelor2 || "",
+        id: record?.id || 0,
+        thesisTypeId: record?.type.id.toString() || "",
+        thesisName: record?.name || "",
+        bachelor1: record?.firstStudentName || "",
+        bachelor2: record?.secondStudentName || "",
         resolutionCode: record?.resolutionCode || "",
-        defenseDate: record?.defenseDate
-          ? new Date(record.defenseDate)
-          : undefined,
-        presidentId: record?.presidentId || "",
-        secretaryId: record?.secretaryId || "",
-        vocalId: record?.vocalId || "",
-        advisorId: record?.advisorId || "",
+        defenseDate: record?.date ? new Date(record.date) : undefined,
+        presidentId: record?.professorsThesis?.find(p => p.charge.name === "Presidente").professor.id.toString() || "",
+        secretaryId: record?.professorsThesis?.find(p => p.charge?.name === "Secretario").professor.id.toString() || "",
+        vocalId: record?.professorsThesis?.find(p => p.charge?.name === "Vocal").professor.id.toString() || "",
+        advisorId: record?.professorsThesis?.find(p => p.charge?.name === "Asesor").professor.id.toString() || "",
       });
     }
   }, [isOpen, record, form]);
 
-  
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
     const recordData = {
-      thesisTypeId: data.thesisTypeId,
-      thesisName: data.thesisName.trim(),
-      bachelor1: data.bachelor1.trim(),
-      bachelor2: data.bachelor2?.trim(),
+      id: data.id,
+      typeId: Number(data.thesisTypeId),
+      name: data.thesisName.trim(),
+      firstStudentName: data.bachelor1.trim(),
+      secondStudentName: data.bachelor2?.trim(),
       resolutionCode: data.resolutionCode.trim(),
-      defenseDate: data.defenseDate?.toISOString(),
-      presidentId: data.presidentId,
-      secretaryId: data.secretaryId,
-      vocalId: data.vocalId,
-      advisorId: data.advisorId,
+      date: data.defenseDate?.toISOString(),
+      professors: [
+        { chargeId: 1, professorId: Number(data.presidentId) },
+        { chargeId: 2, professorId: Number(data.secretaryId) },
+        { chargeId: 3, professorId: Number(data.vocalId) },
+        { chargeId: 4, professorId: Number(data.advisorId) }
+      ]
     };
     console.log("recordData: ", recordData);
 
     try {
       if (!record) {
-        //TODO: ENDPOINT POST RECORD
-        console.log("Crear registro:", recordData);
+        axios
+          .post("/api/thesis", recordData)
+          .then((response) => console.log(response))
+          .catch((error) =>
+            console.error("Error obteniendo al insertar tesis:", error)
+          );
       } else {
-        //TODO: ENDPOINT PUT RECORD
-        console.log("Actualizar registro:", recordData)
+        axios
+          .put("/api/thesis", recordData)
+          .then((response) => console.log(response))
+          .catch((error) =>
+            console.error("Error obteniendo al actualizar tesis:", error)
+          );
       }
     } catch (error) {
       console.error("Error submitting record:", error);
@@ -158,8 +189,8 @@ export function RecordAddDialog({
       setIsLoading(false);
       setIsOpen(false);
     }
-    
-   
+
+
   };
 
   return (
@@ -203,10 +234,10 @@ export function RecordAddDialog({
                                     ? "text-gray-600"
                                     : "text-muted-foreground"
                                 )}
-                                disabled={record}
                               >
-                                {record?.thesisTypeId ||
-                                  "Seleccione el tipo de registro"}
+                                {field.value
+                                  ? thesisTypes.find((type) => type.id.toString() === field.value)?.name // Mostrar el nombre basado en el ID
+                                  : "Seleccione el tipo de registro"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -219,7 +250,7 @@ export function RecordAddDialog({
                                   {thesisTypes?.map((type) => (
                                     <DropdownMenuRadioItem
                                       key={type.id}
-                                      value={type.id}
+                                      value={type.id.toString()}
                                     >
                                       {type.name}
                                     </DropdownMenuRadioItem>
@@ -387,9 +418,10 @@ export function RecordAddDialog({
                                     ? "text-gray-600"
                                     : "text-muted-foreground"
                                 )}
-                                disabled={record}
                               >
-                                {record?.thesisTypeId || "Seleccione al asesor"}
+                                {field.value
+                                  ? professors.find((prof) => prof.id.toString() === field.value)?.user.name
+                                  : "Seleccione un profesor"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -402,9 +434,9 @@ export function RecordAddDialog({
                                   {professors?.map((professor) => (
                                     <DropdownMenuRadioItem
                                       key={professor.id}
-                                      value={professor.id}
+                                      value={professor.id.toString()}
                                     >
-                                      {professor.name}
+                                      {professor.user.name}
                                     </DropdownMenuRadioItem>
                                   ))}
                                 </ScrollArea>
@@ -439,10 +471,10 @@ export function RecordAddDialog({
                                     ? "text-gray-600"
                                     : "text-muted-foreground"
                                 )}
-                                disabled={record}
                               >
-                                {record?.thesisTypeId ||
-                                  "Seleccione al presidente"}
+                                {field.value
+                                  ? professors.find((prof) => prof.id.toString() === field.value)?.user.name
+                                  : "Seleccione un profesor"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -455,9 +487,9 @@ export function RecordAddDialog({
                                   {professors?.map((professor) => (
                                     <DropdownMenuRadioItem
                                       key={professor.id}
-                                      value={professor.id}
+                                      value={professor.id.toString()}
                                     >
-                                      {professor.name}
+                                      {professor.user.name}
                                     </DropdownMenuRadioItem>
                                   ))}
                                 </ScrollArea>
@@ -492,10 +524,10 @@ export function RecordAddDialog({
                                     ? "text-gray-600"
                                     : "text-muted-foreground"
                                 )}
-                                disabled={record}
                               >
-                                {record?.thesisTypeId ||
-                                  "Seleccione al secretario"}
+                                {field.value
+                                  ? professors.find((prof) => prof.id.toString() === field.value)?.user.name
+                                  : "Seleccione un profesor"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -508,9 +540,9 @@ export function RecordAddDialog({
                                   {professors?.map((professor) => (
                                     <DropdownMenuRadioItem
                                       key={professor.id}
-                                      value={professor.id}
+                                      value={professor.id.toString()}
                                     >
-                                      {professor.name}
+                                      {professor.user.name}
                                     </DropdownMenuRadioItem>
                                   ))}
                                 </ScrollArea>
@@ -545,9 +577,10 @@ export function RecordAddDialog({
                                     ? "text-gray-600"
                                     : "text-muted-foreground"
                                 )}
-                                disabled={record}
                               >
-                                {record?.thesisTypeId || "Seleccione al vocal"}
+                                {field.value
+                                  ? professors.find((prof) => prof.id.toString() === field.value)?.user.name
+                                  : "Seleccione un profesor"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -560,9 +593,9 @@ export function RecordAddDialog({
                                   {professors?.map((professor) => (
                                     <DropdownMenuRadioItem
                                       key={professor.id}
-                                      value={professor.id}
+                                      value={professor.id.toString()}
                                     >
-                                      {professor.name}
+                                      {professor.user.name}
                                     </DropdownMenuRadioItem>
                                   ))}
                                 </ScrollArea>
@@ -579,7 +612,7 @@ export function RecordAddDialog({
             </div>
             <DialogFooter className="mt-4">
               <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Guardando..." : record ? "Actualizar" : "Guardar"}
+                {isLoading ? "Guardando..." : record ? "Actualizar" : "Guardar"}
               </Button>
             </DialogFooter>
           </form>

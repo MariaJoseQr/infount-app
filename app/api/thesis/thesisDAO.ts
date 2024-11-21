@@ -28,10 +28,10 @@ export class ThesisDAO {
             return await db.thesis.findMany({
                 where: { isDeleted: false },
                 include: {
-                    type: { select: { name: true } },
+                    type: { select: { id: true, name: true } },
                     professorsThesis: { // Relación intermedia con los profesores
                         select: {
-                            professor: { select: { user: { select: { name: true } } } },
+                            professor: { select: { id: true, user: { select: { name: true } } } },
                             charge: { select: { name: true } }
                         }
                     }
