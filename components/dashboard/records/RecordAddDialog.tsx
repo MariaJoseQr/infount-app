@@ -57,7 +57,7 @@ export function RecordAddDialog({
 
   useEffect(() => {
     axios
-      .get("/api/thesis-types")
+      .get("localhost:3000/api/thesis-type")
       .then((response) => setThesisTypes(response.data))
       .catch((error) =>
         console.error("Error obteniendo tipos de tesis:", error)
@@ -66,7 +66,7 @@ export function RecordAddDialog({
 
   useEffect(() => {
     axios
-      .get("/api/professors")
+      .get("localhost:3000/api/professor")
       .then((response) => setProfessors(response.data))
       .catch((error) =>
         console.error("Error obteniendo lista de profesores:", error)
@@ -141,8 +141,11 @@ export function RecordAddDialog({
     try {
       if (!record) {
         //TODO: ENDPOINT POST RECORD
+        await axios.post("localhost:3000/api/thesis");
+        console.log("Tesis insertada con éxito");
       } else {
         //TODO: ENDPOINT PUT RECORD
+        await axios.put("localhost:3000/api/thesis");
       }
     } catch (error) {
       console.error("Error submitting record:", error);
