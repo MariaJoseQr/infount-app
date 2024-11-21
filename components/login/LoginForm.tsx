@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-/* import {
+import {
   Form,
   FormField,
   FormItem,
@@ -23,7 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
   FormControl,
   FormDescription,
   FormMessage,
-} from "@/components/ui/form"; */
+} from "@/components/ui/form";
 
 
 
@@ -46,40 +46,20 @@ type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
-
-  /* const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [forgotEmail, setForgotEmail] = useState<string>(""); */
   const [forgotPassword, setForgotPassword] = useState<boolean>(false);
   const [registerMode, setRegisterMode] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const {
-    register: loginRegister,
-    handleSubmit: handleLoginSubmit,
-    formState: { errors: loginErrors, isValid: isLoginValid },  
-  } = useForm<LoginFormData>({
+  const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    mode: "onChange", 
+    mode: "onChange",
   });
 
-  const {
-    register: registerRegister,
-    handleSubmit: handleRegisterSubmit,
-    formState: { errors: registerErrors, isValid: isRegisterValid},  
-  } = useForm<RegistrationFormData>({
+  const registerForm = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema),
-    mode: "onChange", 
+    mode: "onChange",
   });
 
-/*   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
- */
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
@@ -121,25 +101,30 @@ export default function LoginForm() {
       {forgotPassword ? (
         <>
           <CardContent>
-            <form onSubmit={(e) => e.preventDefault()}>
-                <div className="mb-4">
-                  <Label htmlFor="email">Correo:</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...loginRegister("email")}
-                    placeholder="Ingrese su correo"
-                    className="mt-2"
+            <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(() => setForgotPassword(false))}>
+                  <FormField
+                    name="email"
+                    control={loginForm.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Correo:</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Ingrese su correo" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  {loginErrors.email && <p className="text-red-500 text-sm">{loginErrors.email.message}</p>}
-                </div>
-                <Button  
-                    className="w-full  text-white bg-primary hover:bg-primary-dark" 
-                    onClick={() => setForgotPassword(false)} 
-                    disabled={isLoading}>
+                  <Button
+                    className="mt-4 w-full text-white bg-primary hover:bg-primary-dark"
+                    type="submit"
+                    disabled={isLoading}
+                  >
                     {isLoading ? "Enviando..." : "Enviar correo electrónico"}
                   </Button>
-            </form>
+                </form>
+              </Form>
           </CardContent>
           <CardFooter className="justify-center items-center">
             <a
@@ -152,75 +137,97 @@ export default function LoginForm() {
         </>
       ) : registerMode ? (
           <CardContent >
-                <form onSubmit={handleRegisterSubmit(handleRegister)}>
-                  <div className="mb-4">
-                      <Label htmlFor="fullName">Nombres y Apellidos:</Label>
-                      <Input 
-                          id="fullName" {...registerRegister("fullName")} 
-                          className=" mt-2 w-full text-gray-600" 
-                          placeholder="Ingrese su nombre completo"
-                          /* {...field} */
-                          />
-                      {registerErrors.fullName && <p className="text-red-500 text-sm">{registerErrors.fullName.message}</p>}
-                  </div>
-                  <div className="mb-4">
-                      <Label htmlFor="code">Código:</Label>
-                      <Input 
-                          id="code" {...registerRegister("code")} 
-                          className=" mt-2 w-full text-gray-600" 
-                          placeholder="Ingrese su codigo de usuario"
-                          /* {...field} */
+                <Form {...registerForm}>
+                    <form onSubmit={registerForm.handleSubmit(handleRegister)}>
+                      <FormField
+                        name="fullName"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nombres y Apellidos:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su nombre completo" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                      {registerErrors.code && <p className="text-red-500 text-sm">{registerErrors.code.message}</p>}
-                  </div>
-                  <div className="mb-4">
-                      <Label htmlFor="email">Correo:</Label>
-                      <Input
-                          id="email" 
-                          type="email" {...registerRegister("email")}
-                          className=" mt-2 w-full text-gray-600" 
-                          placeholder="Ingrese su correo electronico"
-                          /* {...field} */
+                      <FormField
+                        name="code"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Código:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su código" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
                       />
-                      {registerErrors.email && <p className="text-red-500 text-sm">{registerErrors.email.message}</p>}
-                  </div>
-                  <div className="mb-4">
-                      <Label htmlFor="password">Contraseña:</Label>
-                      <Input 
-                          id="password" 
-                          type="password" {...registerRegister("password")} 
-                          className=" mt-2 w-full text-gray-600" 
-                          placeholder="Ingrese su contraseña"
-                          /* {...field} */
-                        />
-                      {registerErrors.password && <p className="text-red-500 text-sm">{registerErrors.password.message}</p>}
-                  </div>
-                  <div className="mb-4">
-                      <Label htmlFor="researchArea">Área de Investigación:</Label>
-                      <Input 
-                          id="researchArea" {...registerRegister("researchArea")} 
-                          className=" mt-2 w-full text-gray-600" 
-                          placeholder="Ingrese su área de investigación"
-                          /* {...field} */
-                        />
-                  </div>
-                  <div className="mb-4">
-                      <Label htmlFor="office">Oficina:</Label>
-                      <Input 
-                          id="office" {...registerRegister("office")} 
-                          className=" mt-2 w-full text-gray-600" 
-                          placeholder="Ingrese su oficina"
-                          /* {...field} */
-                        />
-                  </div>
-                  <Button 
-                      onClick={handleRegisterSubmit(handleRegister)} 
-                      disabled={isLoading || !isRegisterValid}
-                      className="w-full  text-white bg-primary hover:bg-primary-dark"
+                      <FormField
+                        name="email"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Correo:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su correo" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="password"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Contraseña:</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="password"
+                                placeholder="Ingrese su contraseña"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="researchArea"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Área de Investigación:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su área de investigación" />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="office"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Oficina:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su oficina" />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        className=" mt-4 w-full text-white bg-primary hover:bg-primary-dark"
+                        type="submit"
+                        disabled={isLoading || !registerForm.formState.isValid}
                       >
-                      {isLoading ? "Registrando..." : "Registrarse"}
-                  </Button>
-              </form>
+                        {isLoading ? "Registrando..." : "Registrarse"}
+                      </Button>
+                    </form>
+                  </Form>
               <CardFooter className="justify-center items-center">
                 <a
                   className=" text-sm text-gray-600 hover:underline cursor-pointer"
@@ -233,44 +240,53 @@ export default function LoginForm() {
       ) : (
         <>
           <CardContent>
-            <form onSubmit={handleLoginSubmit(handleLogin)}>
-              <div className="mb-4">
-                <Label htmlFor="email">{"Correo"}:</Label>
-                <Input
-                    id="email"
-                    type="email"
-                    {...loginRegister("email")}
-                    placeholder="Ingrese su correo"
-                    className="mt-2"
-                  />
-                  {loginErrors.email && <p className="text-red-500 text-sm">{loginErrors.email.message}</p>}
-              </div>
-              <div className="mb-6">
-                <Label htmlFor="password">Contraseña:</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  {...loginRegister("password")}
-                  placeholder="Ingrese su contraseña"
-                  className="mt-2"
-                />
-                {loginErrors.password && <p className="text-red-500 text-sm">{loginErrors.password.message}</p>}
-                <a
-                  className="text-sm text-gray-600 hover:underline cursor-pointer"
-                  onClick={() => setForgotPassword(true)}
-                >
-                  Has olvidado tu contraseña
-                </a>
-              </div>
-
-              <Button
-                  onClick={handleLoginSubmit(handleLogin)}
-                  disabled={isLoading || !isLoginValid}
-                  className="w-full text-white bg-primary hover:bg-primary-dark"
-                >
-                  {isLoading ? "Ingresando..." : "Ingresar"}
-            </Button>
-            </form>
+              <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(handleLogin)}>
+                    <FormField
+                      name="email"
+                      control={loginForm.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Correo:</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Ingrese su correo" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="password"
+                      control={loginForm.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Contraseña:</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="password"
+                              placeholder="Ingrese su contraseña"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <a
+                      className="text-sm text-gray-600 hover:underline cursor-pointer"
+                      onClick={() => setForgotPassword(true)}
+                    >
+                      Has olvidado tu contraseña
+                    </a>
+                    <Button
+                      className="mt-4 w-full text-white bg-primary hover:bg-primary-dark"
+                      type="submit"
+                      disabled={isLoading || !loginForm.formState.isValid}
+                    >
+                      {isLoading ? "Ingresando..." : "Ingresar"}
+                    </Button>
+                  </form>
+                </Form>
           </CardContent>
           <CardFooter className="justify-center items-center">
               <a
