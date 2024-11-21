@@ -57,7 +57,7 @@ export function RecordAddDialog({
 
   useEffect(() => {
     axios
-      .get("/api/thesis-types")
+      .get("localhost:3000/api/thesis-type")
       .then((response) => setThesisTypes(response.data))
       .catch((error) =>
         console.error("Error obteniendo tipos de tesis:", error)
@@ -66,7 +66,7 @@ export function RecordAddDialog({
 
   useEffect(() => {
     axios
-      .get("/api/professors")
+      .get("localhost:3000/api/professor")
       .then((response) => setProfessors(response.data))
       .catch((error) =>
         console.error("Error obteniendo lista de profesores:", error)
@@ -125,24 +125,30 @@ export function RecordAddDialog({
     setIsLoading(true);
 
     const recordData = {
-      thesisTypeId: data.thesisTypeId,
-      thesisName: data.thesisName.trim(),
-      bachelor1: data.bachelor1.trim(),
-      bachelor2: data.bachelor2?.trim(),
+      name: data.thesisName.trim(),
       resolutionCode: data.resolutionCode.trim(),
-      defenseDate: data.defenseDate?.toISOString(),
-      presidentId: data.presidentId,
-      secretaryId: data.secretaryId,
-      vocalId: data.vocalId,
-      advisorId: data.advisorId,
+      date: data.defenseDate?.toISOString(),
+      firstStudentName: data.bachelor1.trim(),
+      secondStudentName: data.bachelor2?.trim(),
+      typeId: data.thesisTypeId,
+      professors: [
+        { professorId: data.advisorId, chargeId: 1 },
+        { professorId: data.presidentId, chargeId: 2 },
+        { professorId: data.secretaryId, chargeId: 3 },
+        { professorId: data.vocalId, chargeId: 4 },
+      ],
     };
     console.log("recordData: ", recordData);
 
     try {
       if (!record) {
         //TODO: ENDPOINT POST RECORD
+        await axios.post("localhost:3000/api/thesis");
+        console.log("Tesis insertada con éxito");
       } else {
         //TODO: ENDPOINT PUT RECORD
+        await axios.put("localhost:3000/api/thesis");
+        console.log("Tesis actualizada con éxito");
       }
     } catch (error) {
       console.error("Error submitting record:", error);

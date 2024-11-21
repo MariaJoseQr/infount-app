@@ -1,138 +1,301 @@
 "use client";
 import Image from "next/image";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
-
+import { useState } from "react";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
   CardContent,
   CardFooter,
+  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormDescription,
+  FormMessage,
+} from "@/components/ui/form";
+
+
+
+const loginSchema = z.object({
+  email: z.string().email("Correo inválido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+});
+
+const registrationSchema = z.object({
+  fullName: z.string().min(1, "Nombres y apellidos son requeridos"),
+  code: z.string().min(1, "Código es requerido"),
+  email: z.string().email("Correo inválido"),
+  password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  researchArea: z.string().optional(),
+  office: z.string().optional(),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
+type RegistrationFormData = z.infer<typeof registrationSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
-
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [forgotEmail, setForgotEmail] = useState<string>("");
   const [forgotPassword, setForgotPassword] = useState<boolean>(false);
+  const [registerMode, setRegisterMode] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
   });
 
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
+  const registerForm = useForm<RegistrationFormData>({
+    resolver: zodResolver(registrationSchema),
+    mode: "onChange",
+  });
 
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleForgotEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setForgotEmail(e.target.value);
-  };
-
-  const handleForgotPassword = (e: FormEvent) => {
-    e.preventDefault();
-    // TODO: forgot email logic
-    console.log("Forgot email:", forgotEmail);
-  };
-
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (data: LoginFormData) => {
+    setIsLoading(true);
     try {
-      console.log("data: ", e);
-    } catch {
-    } finally {
+      console.log("Iniciando sesión con:", data);
       router.push("/dashboard");
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (data: RegistrationFormData) => {
+    setIsLoading(true);
+    try {
+      console.log("Registrando usuario:", data);
+    } catch (error) {
+      console.error("Error registrando usuario:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card 
+        className="w-[500px] max-h-[85vh] overflow-y-auto"
+        style={{ clipPath: 'inset(0 round 0.45rem)' }}>
       <CardHeader className="items-center">
         <Image
-          src="/bildin-logo-black-text.svg"
-          alt="Bildin logo"
+          src="/infologo.png"
+          alt="Info Logo"
           width={166}
           height={56}
         />
+        <CardTitle className="text-primary">
+            {registerMode ? "Registro de Usuario" : "Ingreso de Usuario"}
+          </CardTitle>
       </CardHeader>
       {forgotPassword ? (
         <>
           <CardContent>
-            <form onSubmit={handleForgotPassword}>
-              <div className="mb-4">
-                <Label htmlFor="email">Correo:</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={forgotEmail}
-                  onChange={handleForgotEmailChange}
-                  required
-                  placeholder={"enterEmail"}
-                  className="mt-2"
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                {"sendEmail"}
-              </Button>
-            </form>
+            <Form {...loginForm}>
+                <form onSubmit={loginForm.handleSubmit(() => setForgotPassword(false))}>
+                  <FormField
+                    name="email"
+                    control={loginForm.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Correo:</FormLabel>
+                        <FormControl>
+                          <Input {...field} placeholder="Ingrese su correo" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    className="mt-4 w-full text-white bg-primary hover:bg-primary-dark"
+                    type="submit"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Enviando..." : "Enviar correo electrónico"}
+                  </Button>
+                </form>
+              </Form>
           </CardContent>
           <CardFooter className="justify-center items-center">
             <a
               className="text-sm text-gray-600 hover:underline cursor-pointer"
               onClick={() => setForgotPassword(false)}
             >
-              {"alreadyUser"}
+              {"Regresar"}
             </a>
           </CardFooter>
         </>
+      ) : registerMode ? (
+          <CardContent >
+                <Form {...registerForm}>
+                    <form onSubmit={registerForm.handleSubmit(handleRegister)}>
+                      <FormField
+                        name="fullName"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nombres y Apellidos:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su nombre completo" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="code"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Código:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su código" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="email"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Correo:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su correo" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="password"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Contraseña:</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="password"
+                                placeholder="Ingrese su contraseña"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="researchArea"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Área de Investigación:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su área de investigación" />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="office"
+                        control={registerForm.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Oficina:</FormLabel>
+                            <FormControl>
+                              <Input {...field} placeholder="Ingrese su oficina" />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        className=" mt-4 w-full text-white bg-primary hover:bg-primary-dark"
+                        type="submit"
+                        disabled={isLoading || !registerForm.formState.isValid}
+                      >
+                        {isLoading ? "Registrando..." : "Registrarse"}
+                      </Button>
+                    </form>
+                  </Form>
+              <CardFooter className="justify-center items-center">
+                <a
+                  className=" text-sm text-gray-600 hover:underline cursor-pointer"
+                  onClick={() => setRegisterMode(false)}
+                >
+                  ¿Ya tienes una cuenta? Iniciar sesión
+                </a>
+              </CardFooter>
+          </CardContent>
       ) : (
         <>
           <CardContent>
-            <form onSubmit={handleLogin}>
-              <div className="mb-4">
-                <Label htmlFor="email">{"email"}:</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  required
-                  placeholder={"enterEmail"}
-                  className="mt-2"
-                />
-              </div>
-              <div className="mb-6">
-                <Label htmlFor="password">{"password"}:</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  required
-                  placeholder={"enterPassword"}
-                  className="mt-2"
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                {"login"}
-              </Button>
-            </form>
+              <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(handleLogin)}>
+                    <FormField
+                      name="email"
+                      control={loginForm.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Correo:</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Ingrese su correo" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="password"
+                      control={loginForm.control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Contraseña:</FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              type="password"
+                              placeholder="Ingrese su contraseña"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <a
+                      className="text-sm text-gray-600 hover:underline cursor-pointer"
+                      onClick={() => setForgotPassword(true)}
+                    >
+                      Has olvidado tu contraseña
+                    </a>
+                    <Button
+                      className="mt-4 w-full text-white bg-primary hover:bg-primary-dark"
+                      type="submit"
+                      disabled={isLoading || !loginForm.formState.isValid}
+                    >
+                      {isLoading ? "Ingresando..." : "Ingresar"}
+                    </Button>
+                  </form>
+                </Form>
           </CardContent>
           <CardFooter className="justify-center items-center">
-            <a
-              className="text-sm text-gray-600 hover:underline cursor-pointer"
-              onClick={() => setForgotPassword(true)}
-            >
-              {"forgotPassword"}
-            </a>
+              <a
+                  className="text-sm text-gray-600 hover:underline cursor-pointer"
+                  onClick={() => setRegisterMode(true)}
+                >
+                  ¿No tienes una cuenta? Registrarse
+                </a>
+
           </CardFooter>
         </>
       )}
