@@ -12,6 +12,8 @@ import React, { useEffect, useState } from 'react';
 import { AlertDialogDemo } from './RecordDelete';
 import { RecordAddDialog } from "./RecordAddDialog";
 import axios from "axios";
+import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
+import { CustomResponse } from "@/app/beans/customResponse";
 
 /*
 const invoices = [
@@ -44,17 +46,17 @@ export interface Thesis {
 }
 
 export function TableDemo({ filter }: TableDemoProps) {
-  const [data, setData] = useState<Thesis[]>([]);
+  const [data, setData] = useState<ThesisDTO[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedThesis, setSelectedThesis] = useState<Thesis | null>(null);
+  const [selectedThesis, setSelectedThesis] = useState<ThesisDTO | null>(null);
   const [showModalEdit, setShowModalEdit] = useState(false);
 
   useEffect(() => {
     const fetchTheses = async () => {
       try {
-        const response = await axios.get('/api/thesis');
-        console.log("DATA RESPONSE: ", response.data.data)
-        setData(response.data.data);
+        const response = await axios.get<CustomResponse<ThesisDTO[]>>('/api/thesis');
+        console.log("DATA RESPONSE: ", response.data.result)
+        setData(response.data.result || []);
       } catch (error) {
         console.error('Error fetching theses:', error);
       }
@@ -94,7 +96,7 @@ export function TableDemo({ filter }: TableDemoProps) {
 
   const filteredTheses = filter === "todos" || !filter
     ? data
-    : data.filter((thesis) => thesis.type.name === filter);
+    : data.filter((thesis) => thesis.type?.name === filter);
 
   return (
     <Table>
@@ -111,7 +113,7 @@ export function TableDemo({ filter }: TableDemoProps) {
           <TableRow key={thesis.name}>
             <TableCell>{thesis.resolutionCode}</TableCell>
             <TableCell>{thesis.name}</TableCell>
-            <TableCell>{thesis.type.name}</TableCell>
+            <TableCell>{thesis.type?.name}</TableCell>
             <TableCell className="text-right">
               <div className="flex justify-end space-x-4">
                 <Pencil
@@ -123,7 +125,7 @@ export function TableDemo({ filter }: TableDemoProps) {
                 <RecordAddDialog
                   isOpen={showModalEdit}
                   setIsOpen={setShowModalEdit}
-                  record={selectedThesis}
+                  record={selectedThesis!}
                 />
                 <Trash2
                   color="red"
