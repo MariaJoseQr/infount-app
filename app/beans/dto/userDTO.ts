@@ -1,11 +1,11 @@
 import { SchoolDTO } from "./schoolDTO";
 
 export interface UserDTO {
-    id: number;
+    id?: number;
     username?: string;
     name?: string;
     email?: string;
-    celphone?: string;
+    cellphone?: string;
 
     // FK hacía School
     school?: SchoolDTO;

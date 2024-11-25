@@ -1,4 +1,5 @@
 
+import { UserReq } from "@/app/beans/request/userReq";
 import { db } from "@/lib/db";
 import { User } from "@prisma/client";
 
@@ -33,16 +34,16 @@ export class UserDAO {
         }
     }
     */
-    static async createUser(data: User): Promise<User> {
+    static async createUser(data: UserReq): Promise<User> {
         try {
             const newUser = await db.user.create({
                 data: {
-                    username: data.username,
+                    username: data.username!,
                     password: data.password,
-                    name: data.name,
-                    email: data.email,
-                    cellphone: data.cellphone,
-                    school: { connect: { id: data.schoolId } }, // Asegúrate de incluir el schoolId
+                    name: data.name!,
+                    email: data.email!,
+                    cellphone: data.cellphone!,
+                    school: { connect: { id: data.school?.id } }, // Asegúrate de incluir el schoolId
                 },
             });
             return newUser;
@@ -52,7 +53,7 @@ export class UserDAO {
         }
     }
 
-    static async updateUser(data: User): Promise<User> {
+    static async updateUser(data: UserReq): Promise<User> {
         return db.user.update({
             where: { id: data.id },
             data: {

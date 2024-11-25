@@ -9,9 +9,15 @@ export class ProfessorDAO {
         try {
             const proffesors: ProfessorDTO[] = await db.professor.findMany({
                 where: { isDeleted: false },
-                include: {
-                    user: { select: { id: true, name: true }, },
-                    grade: { select: { id: true, abbreviation: true } }
+                select: {
+                    id: true, code: true,
+                    user: {
+                        select: {
+                            id: true, name: true, username: true, email: true, schoolId: true, cellphone: true
+                        },
+                    },
+                    grade: { select: { id: true, abbreviation: true } },
+                    createdAt: true
                 },
             });
             return proffesors;
@@ -39,19 +45,18 @@ export class ProfessorDAO {
         }
     }
 
-    static async getProfessorByUserId(userId: number): Promise<Professor | null> {
+    static async getProfessorById(id: number): Promise<Professor | null> {
         return db.professor.findUnique({
-            where: { userId },
+            where: { id },
         });
     }
 
-    static async updateProfessor(data: { id: number; code: string; gradeId: number; userId: number }): Promise<Professor> {
+    static async updateProfessor(data: { id: number; code: string; gradeId: number; }): Promise<Professor> {
         return db.professor.update({
             where: { id: data.id },
             data: {
                 code: data.code,
                 grade: { connect: { id: data.gradeId } },
-                user: { connect: { id: data.userId } },
                 updatedAt: new Date(),
             },
         });

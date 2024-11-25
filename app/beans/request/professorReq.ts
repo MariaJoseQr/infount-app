@@ -1,8 +1,9 @@
-import { User } from "@prisma/client";
+
+import { UserReq } from "./userReq";
 
 export interface ProfessorReq {
     id: number;
-    code?: string;
-    gradeId?: number;
-    user?: User;
+    code: string;
+    gradeId: number;
+    user: UserReq;
 }

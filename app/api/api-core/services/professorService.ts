@@ -4,8 +4,8 @@ import { CustomResponse, ResultType } from "@/app/beans/customResponse";
 import { ProfessorDAO } from "../dao/professorDAO";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { ProfessorReq } from "@/app/beans/request/professorReq";
-import { User } from "@prisma/client";
 import { UserDAO } from "../dao/userDAO";
+import { UserReq } from "@/app/beans/request/userReq";
 
 export class ProfessorService {
 
@@ -35,19 +35,15 @@ export class ProfessorService {
 
             //TODO: Validaciones para ver si ya existe usuario, correo, 
 
-            const userReq: User = {
+            const userReq: UserReq = {
                 username: data.user.username,
                 password: data.user.password,
                 name: data.user.name,
                 email: data.user.email,
                 cellphone: data.user.cellphone,
-                schoolId: 1,
+                school: { id: 1 },
                 id: 0,
-                isDeleted: false,
-                createdAt: new Date(),
-                creationUserId: null,
-                updatedAt: null,
-                updateUserId: null
+
             }
 
             const newUser = await UserDAO.createUser(userReq);
@@ -58,7 +54,7 @@ export class ProfessorService {
                 userId: newUser.id,
             });
 
-            return new CustomResponse<number>(newProfessor.id, ResultType.OK, "Profesor registrado exitosamente.", 201);
+            return new CustomResponse<number>(newProfessor.userId, ResultType.OK, "Profesor registrado exitosamente.", 201);
 
 
         } catch (error) {
@@ -76,31 +72,36 @@ export class ProfessorService {
                 || !data.user?.cellphone || !data.code || !data.gradeId)
                 return new CustomResponse<number>(null, ResultType.WARNING, "Faltan datos obligatorios para actualizar al docente.", 400);
 
-            if (!data.user?.id) {
-                return new CustomResponse<number>(null, ResultType.WARNING, "ID de usuario no proporcionado.", 400);
+            if (!data.id) {
+                return new CustomResponse<number>(null, ResultType.WARNING, "ID del profesor no proporcionado.", 400);
             }
 
             //TODO: VERIFICAR USUARIO EXISTENTE PERTENECE AL PROFESSOR
-            const existingUser = await UserDAO.getUserById(data.user.id);
-            if (!existingUser) {
-                return new CustomResponse<number>(null, ResultType.WARNING, "Usuario no encontrado.", 404);
-            }
 
-            const updatedUser = await UserDAO.updateUser(data.user);
-
-            const existingProfessor = await ProfessorDAO.getProfessorByUserId(data.user.id);
+            const existingProfessor = await ProfessorDAO.getProfessorById(data.id);
+            // console.log("existingProfessor: ", existingProfessor)
             if (!existingProfessor) {
                 return new CustomResponse<number>(null, ResultType.WARNING, "Profesor no encontrado.", 404);
             }
 
+            const existingUser = await UserDAO.getUserById(existingProfessor.userId);
+            // console.log("USER: ", existingUser)
+            if (!existingUser) {
+                return new CustomResponse<number>(null, ResultType.WARNING, "Usuario no encontrado.", 404);
+            }
+            data.user.id = existingUser.id;
+            const updatedUser = await UserDAO.updateUser(data.user);
+
             const updatedProfessor = await ProfessorDAO.updateProfessor({
                 id: existingProfessor.id,
                 code: data.code,
-                gradeId: data.gradeId,
-                userId: updatedUser.id,
+                gradeId: data.gradeId
             });
 
-            return new CustomResponse<number>(updatedProfessor.id, ResultType.OK, "Profesor actualizado exitosamente.", 200);
+            if (!updatedProfessor)
+                return new CustomResponse<number>(null, ResultType.ERROR, "Profesor no actualizado.", 404);
+
+            return new CustomResponse<number>(updatedUser.id, ResultType.OK, "Profesor actualizado exitosamente.", 200);
 
         } catch (error) {
             console.error(error);
@@ -117,7 +118,6 @@ export class ProfessorService {
                 return new CustomResponse<boolean>(false, ResultType.WARNING, 'No se encontró al docente.', 404);
             }
 
-            // Luego, eliminamos lógicamente al usuario asociado
             const userDeleted = await UserDAO.deleteUserById(id);
             if (!userDeleted) {
                 return new CustomResponse<boolean>(false, ResultType.WARNING, 'No se encontró al usuario asociado al docente.', 404);
