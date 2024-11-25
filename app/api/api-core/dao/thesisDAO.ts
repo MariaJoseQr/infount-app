@@ -1,3 +1,4 @@
+import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
 import { db } from "@/lib/db";
 import { Thesis, Prisma } from "@prisma/client";
 
@@ -23,24 +24,48 @@ export class ThesisDAO {
         }
     }
 
-    static async getAllThesis(): Promise<Thesis[]> {
+    static async getAllThesis(): Promise<ThesisDTO[]> {
         try {
-            return await db.thesis.findMany({
+            const thesis: ThesisDTO[] = await db.thesis.findMany({
                 where: { isDeleted: false },
-                include: {
-                    type: { select: { name: true } },
-                    professorsThesis: { // Relación intermedia con los profesores
+                select: {
+                    id: true, name: true, resolutionCode: true, date: true, firstStudentName: true, secondStudentName: true, createdAt: true,
+                    type: { select: { id: true, name: true } },
+                    professorsThesis: {
                         select: {
-                            professor: { select: { user: { select: { name: true } } } },
-                            charge: { select: { name: true } }
-                        }
-                    }
+                            professor: { select: { id: true, user: { select: { id: true, name: true } } } },
+                            charge: { select: { id: true, name: true } },
+                        },
+                    },
                 },
             });
 
+            // Transformar los datos a ThesisDTO
+            /*
+            const thesisDTO: ThesisDTO[] = thesis.map((t) => ({
+                id: t.id,
+                name: t.name,
+                resolutionCode: t.resolutionCode,
+                date: t.date,
+                firstStudentName: t.firstStudentName,
+                secondStudentName: t.secondStudentName,
+                type: t.type ? { id: t.type.id, name: t.type.name } : undefined,
+                professorsThesis: t.professorsThesis?.map((pt) => ({
+                    professor: {
+                        id: pt.professor?.id,
+                        user: { name: pt.professor?.user?.name },
+                    },
+                    charge: { name: pt.charge?.name },
+                })),
+                createdAt: t.createdAt,
+            }));
+            */
+
+            return thesis;
+
         } catch (error) {
             if (error instanceof Error)
-                throw new Error(error.message);
+                console.error(error);
             throw new Error("Error desconocido al obtener las tesis");
         }
     }
