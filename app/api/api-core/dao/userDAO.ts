@@ -48,8 +48,10 @@ export class UserDAO {
             });
             return newUser;
         } catch (error) {
-            if (error instanceof Error) throw new Error(error.message);
-            throw new Error("Error desconocido al registrar la tesis");
+            if (error instanceof Error)
+                console.log(error.message)
+            // throw new Error(error.message)
+            throw new Error("Error desconocido al insertar el docente");
         }
     }
 
