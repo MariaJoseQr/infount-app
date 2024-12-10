@@ -3,7 +3,7 @@ import { ProfessorService } from "../api-core/services/professorService";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { CustomResponse, ResultType } from "@/app/beans/customResponse";
 // import { ProfessorReq } from "@/app/beans/request/professorReq";
-import { ProfessorReqV2 } from "@/app/beans/request/professorReqV2";
+import { ProfessorReq } from "@/app/beans/request/professorReq";
 
 //GET ALL
 export async function GET() {
@@ -25,7 +25,7 @@ export async function GET() {
 //INSERT
 export async function POST(request: NextRequest) {
     try {
-        const body: ProfessorReqV2 = await request.json();
+        const body: ProfessorReq = await request.json();
 
         const response: CustomResponse<number> = await ProfessorService.createProfessor(body);
         return new NextResponse(JSON.stringify(response), { status: response.status });
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
 //UPDATE
 export async function PUT(request: NextRequest) {
     try {
-        const body: ProfessorReqV2 = await request.json();
+        const body: ProfessorReq = await request.json();
 
         const response: CustomResponse<boolean> = await ProfessorService.updateProfessor(body);
         return new NextResponse(JSON.stringify(response), { status: response.status });

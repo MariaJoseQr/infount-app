@@ -1,9 +1,11 @@
 
-import { UserReq } from "./userReq";
 
 export interface ProfessorReq {
     id: number;
+    name: string;
+    email: string;
+    cellphone: string;
+
     code: string;
     gradeId: number;
-    user: UserReq;
 }

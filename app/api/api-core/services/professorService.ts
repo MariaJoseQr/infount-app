@@ -6,7 +6,7 @@ import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 // import { ProfessorReq } from "@/app/beans/request/professorReq";
 import { UserDAO } from "../dao/userDAO";
 import { UserReq } from "@/app/beans/request/userReq";
-import { ProfessorReqV2 } from "@/app/beans/request/professorReqV2";
+import { ProfessorReq } from "@/app/beans/request/professorReq";
 
 export class ProfessorService {
 
@@ -26,7 +26,7 @@ export class ProfessorService {
         }
     }
 
-    static async createProfessor(data: ProfessorReqV2): Promise<CustomResponse<number>> {
+    static async createProfessor(data: ProfessorReq): Promise<CustomResponse<number>> {
         try {
             // console.log("Datos recibidos:", data);
 
@@ -62,7 +62,7 @@ export class ProfessorService {
         }
     }
 
-    static async updateProfessor(data: ProfessorReqV2): Promise<CustomResponse<boolean>> {
+    static async updateProfessor(data: ProfessorReq): Promise<CustomResponse<boolean>> {
         try {
             // console.log("Datos recibidos:", data);
             if (!data.name || !data.email || !data.cellphone || !data.code || !data.gradeId)
