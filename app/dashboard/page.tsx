@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 
-
 export default function DashboardPage() {
   const [activePage, setActivePage] = useState("");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -53,7 +52,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex flex-col flex-1 mb-4 mx-4 sm:mx-6 md:mx-8 lg:mr-10 xl:mr-12 mt-16 gap-2">
           {activePage === "#docentes" && <ProfessorPage />}
-          {activePage === "#tramites" && <RecordPage />}
+          {activePage === "#tramites" && null}
           {activePage === "#registros" && <RecordPage />}
         </div>
 

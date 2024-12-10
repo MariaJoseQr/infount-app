@@ -7,24 +7,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Trash2 } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
-import { AlertDialogDemo } from './RecordDelete';
+import { Pencil, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { RecordDeleteDialog } from "./RecordDeleteDialog";
 import { RecordAddDialog } from "./RecordAddDialog";
 import axios from "axios";
 import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
 import { CustomResponse } from "@/app/beans/customResponse";
-
-/*
-const invoices = [
-  { invoice: "INV001", resolutionCode: "055-2017-EAPInf", totalAmount: "$250.00", thesisTypeId: "TRABAJO DE GRADUACIÓN" },
-  { invoice: "INV002", resolutionCode: "088-2016-EAPInf", totalAmount: "$150.00", thesisTypeId: "PROYECTO DE TESIS" },
-  { invoice: "INV003", resolutionCode: "088-2016-EAPInf", totalAmount: "$350.00", thesisTypeId: "TRABAJO DE GRADUACIÓN" },
-  { invoice: "INV004", resolutionCode: "088-2016-EAPInf", totalAmount: "$450.00", thesisTypeId: "PROYECTO DE TESIS" },
-  { invoice: "INV005", resolutionCode: "088-2016-EAPInf", totalAmount: "$550.00", thesisTypeId: "TRABAJO DE GRADUACIÓN" },
-  { invoice: "INV006", resolutionCode: "088-2016-EAPInf", totalAmount: "$200.00", thesisTypeId: "PROYECTO DEL TRABAJO DE GRADUACIÓN" },
-];
-*/
+import BarLoader from "react-spinners/BarLoader";
 
 interface TableDemoProps {
   filter?: string;
@@ -38,27 +28,33 @@ export interface Thesis {
   firstStudentName?: string;
   secondStudentName?: string;
   date?: string;
-  professorsThesis: { professor: { user: { name: string } }, charge: { name: string } }[]
-  // presidentId?: string;
-  // secretaryId?: string;
-  // vocalId?: string;
-  // advisorId?: string;
+  professorsThesis: {
+    professor: { user: { name: string } };
+    charge: { name: string };
+  }[];
 }
 
-export function TableDemo({ filter }: TableDemoProps) {
+export function RecordTable({ filter }: TableDemoProps) {
+  const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ThesisDTO[]>([]);
-  const [showModal, setShowModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedThesis, setSelectedThesis] = useState<ThesisDTO | null>(null);
-  const [showModalEdit, setShowModalEdit] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     const fetchTheses = async () => {
+      setLoading(true);
+
       try {
-        const response = await axios.get<CustomResponse<ThesisDTO[]>>('/api/thesis');
-        console.log("DATA RESPONSE: ", response.data.result)
+        const response = await axios.get<CustomResponse<ThesisDTO[]>>(
+          "/api/thesis"
+        );
+
         setData(response.data.result || []);
       } catch (error) {
-        console.error('Error fetching theses:', error);
+        console.error("Error fetching theses:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchTheses();
@@ -66,91 +62,109 @@ export function TableDemo({ filter }: TableDemoProps) {
 
   const openEditModal = (thesisIdEdit: string) => {
     const thesis = data.find((thesis) => thesis.id.toString() === thesisIdEdit);
-    console.log("Thesis to send: ", thesis)
+
     setSelectedThesis(thesis || null);
-    setShowModalEdit(true);
+    setShowEditModal(true);
   };
 
-  const openModal = (thesisId: string) => {
+  const openDeleteModal = (thesisId: string) => {
     const thesis = data.find((thesis) => thesis.id.toString() === thesisId);
+
     setSelectedThesis(thesis || null);
-    setShowModal(true);
+    setShowDeleteModal(true);
   };
 
   const handleDelete = async () => {
     if (selectedThesis) {
-      // setData(data.filter((thesis) => thesis.name !== selectedThesis.name));
-      // setShowModal(false);
-      // setSelectedThesis(null);
       try {
         await axios.put(`/api/thesis/${selectedThesis.id}`);
 
         setData(data.filter((thesis) => thesis.id !== selectedThesis.id));
-        setShowModal(false);
+        setShowDeleteModal(false);
         setSelectedThesis(null);
       } catch (error) {
-        console.error('Error deleting thesis:', error);
+        console.error("Error deleting thesis:", error);
       }
     }
   };
 
-  const filteredTheses = filter === "todos" || !filter
-    ? data
-    : data.filter((thesis) => thesis.type?.name === filter);
+  const filteredTheses =
+    filter === "todos" || !filter
+      ? data
+      : data.filter((thesis) => thesis.type?.name === filter);
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Número de Resolución</TableHead>
-          <TableHead>Nombre de la Tesis</TableHead>
-          <TableHead>Tipo</TableHead>
-          <TableHead className="text-right">Acciones</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {filteredTheses.map((thesis) => (
-          <TableRow key={thesis.name}>
-            <TableCell>{thesis.resolutionCode}</TableCell>
-            <TableCell>{thesis.name}</TableCell>
-            <TableCell>{thesis.type?.name}</TableCell>
-            <TableCell className="text-right">
-              <div className="flex justify-end space-x-4">
-                <Pencil
-                  color="orange"
-                  size={18}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => openEditModal(thesis.id.toString())}
-                />
-                <RecordAddDialog
-                  isOpen={showModalEdit}
-                  setIsOpen={setShowModalEdit}
-                  record={selectedThesis!}
-                />
-                <Trash2
-                  color="red"
-                  size={18}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => openModal(thesis.id.toString())}
-                />
-                <AlertDialogDemo
-                  isOpen={showModal}
-                  onClose={() => setShowModal(false)}
-                  onConfirm={handleDelete}
-                />
-              </div>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-      <TableFooter>
-        <TableRow>
-          <TableCell colSpan={3} className="text-right">
-            Total de registros
-          </TableCell>
-          <TableCell className="text-right">{filteredTheses.length}</TableCell>
-        </TableRow>
-      </TableFooter>
-    </Table>
+    <>
+      <div className="max-h-full">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Número de Resolución</TableHead>
+              <TableHead>Nombre de la Tesis</TableHead>
+              <TableHead>Tipo</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={4} className="px-0">
+                  <div className="flex w-full">
+                    <BarLoader color="#2C3E81" width="100%" />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : (
+              filteredTheses.map((thesis) => (
+                <TableRow key={thesis.name}>
+                  <TableCell>{thesis.resolutionCode}</TableCell>
+                  <TableCell>{thesis.name}</TableCell>
+                  <TableCell>{thesis.type?.name}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-4">
+                      <Pencil
+                        className="cursor-pointer text-primary"
+                        size={18}
+                        onClick={() => openEditModal(thesis.id.toString())}
+                      />
+                      <Trash2
+                        className="cursor-pointer"
+                        color="red"
+                        size={18}
+                        onClick={() => openDeleteModal(thesis.id.toString())}
+                      />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+          {/* TODO: AGREGAR PAGINACIÓN */}
+          {/*
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={3} className="text-right">
+                Total de registros
+              </TableCell>
+              <TableCell className="text-right">
+                {filteredTheses.length}
+              </TableCell>
+            </TableRow>
+          </TableFooter>
+          */}
+        </Table>
+      </div>
+
+      <RecordAddDialog
+        isOpen={showEditModal}
+        setIsOpen={setShowEditModal}
+        record={selectedThesis!}
+      />
+      <RecordDeleteDialog
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+      />
+    </>
   );
 }

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,16 +16,20 @@ interface ConfirmDeleteModalProps {
   onConfirm: () => void;
 }
 
-export const AlertDialogDemo: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onClose, onConfirm }) => {
-  
+export const RecordDeleteDialog: React.FC<ConfirmDeleteModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+}) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={onClose}>
-
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-black font-bold">Confirmación de Eliminación</AlertDialogTitle>
+          <AlertDialogTitle className="text-primary font-bold">
+            ¿Está seguro de que desea eliminar este registro?
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            ¿Está seguro de que desea eliminar este registro? Esta acción no se puede deshacer.
+            Esta acción no se puede deshacer.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -37,7 +41,7 @@ export const AlertDialogDemo: React.FC<ConfirmDeleteModalProps> = ({ isOpen, onC
           >
             Eliminar
           </AlertDialogAction>
-          <AlertDialogCancel className="text-black" onClick={onClose}>
+          <AlertDialogCancel className="text-gray-600">
             Cancelar
           </AlertDialogCancel>
         </AlertDialogFooter>

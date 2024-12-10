@@ -1,4 +1,4 @@
-import { TableDemo } from "./RecordTable";
+import { RecordTable } from "./RecordTable";
 import { RecordImportDialog } from "./RecordImportDialog";
 import { SelectDemo } from "./RecordFilter";
 import { RecordAddDialog } from "./RecordAddDialog";
@@ -47,7 +47,7 @@ export default function RecordPage() {
       </div>
 
       <div className="pt-4">
-        <TableDemo filter={selectedType} />
+        <RecordTable filter={selectedType} />
       </div>
       <RecordAddDialog
         isOpen={recordAddDialogOpen}
