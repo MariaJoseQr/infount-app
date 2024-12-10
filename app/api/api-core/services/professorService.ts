@@ -3,9 +3,10 @@
 import { CustomResponse, ResultType } from "@/app/beans/customResponse";
 import { ProfessorDAO } from "../dao/professorDAO";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
-import { ProfessorReq } from "@/app/beans/request/professorReq";
+// import { ProfessorReq } from "@/app/beans/request/professorReq";
 import { UserDAO } from "../dao/userDAO";
 import { UserReq } from "@/app/beans/request/userReq";
+import { ProfessorReq } from "@/app/beans/request/professorReq";
 
 export class ProfessorService {
 
@@ -29,21 +30,18 @@ export class ProfessorService {
         try {
             // console.log("Datos recibidos:", data);
 
-            if (!data.user?.username || !data.user?.password || !data.user?.email
-                || !data.user?.cellphone || !data.user?.cellphone || !data.code || !data.gradeId)
+            if (!data.name || !data.email || !data.cellphone || !data.code || !data.gradeId)
                 return new CustomResponse<number>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar al docente.", 400);
 
             //TODO: Validaciones para ver si ya existe usuario, correo, 
 
             const userReq: UserReq = {
-                username: data.user.username,
-                password: data.user.password,
-                name: data.user.name,
-                email: data.user.email,
-                cellphone: data.user.cellphone,
+                username: data.email,
+                password: data.code,
+                name: data.name,
+                email: data.email,
+                cellphone: data.cellphone,
                 school: { id: 1 },
-                id: 0,
-
             }
 
             const newUser = await UserDAO.createUser(userReq);
@@ -58,22 +56,20 @@ export class ProfessorService {
 
 
         } catch (error) {
-            console.error(error);
             if (error instanceof Error)
                 console.error(error);
-            throw new Error("Error desconocido al insertar la tesis");
+            throw new Error("Error desconocido al obtener los publicaciones");
         }
     }
 
-    static async updateProfessor(data: ProfessorReq): Promise<CustomResponse<number>> {
+    static async updateProfessor(data: ProfessorReq): Promise<CustomResponse<boolean>> {
         try {
             // console.log("Datos recibidos:", data);
-            if (!data.user?.username || !data.user?.password || !data.user?.email
-                || !data.user?.cellphone || !data.code || !data.gradeId)
-                return new CustomResponse<number>(null, ResultType.WARNING, "Faltan datos obligatorios para actualizar al docente.", 400);
+            if (!data.name || !data.email || !data.cellphone || !data.code || !data.gradeId)
+                return new CustomResponse<boolean>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar al docente.", 400);
 
             if (!data.id) {
-                return new CustomResponse<number>(null, ResultType.WARNING, "ID del profesor no proporcionado.", 400);
+                return new CustomResponse<boolean>(null, ResultType.WARNING, "ID del profesor no proporcionado.", 400);
             }
 
             //TODO: VERIFICAR USUARIO EXISTENTE PERTENECE AL PROFESSOR
@@ -81,17 +77,22 @@ export class ProfessorService {
             const existingProfessor = await ProfessorDAO.getProfessorById(data.id);
             // console.log("existingProfessor: ", existingProfessor)
             if (!existingProfessor) {
-                return new CustomResponse<number>(null, ResultType.WARNING, "Profesor no encontrado.", 404);
+                return new CustomResponse<boolean>(null, ResultType.WARNING, "Profesor no encontrado.", 404);
             }
 
             const existingUser = await UserDAO.getUserById(existingProfessor.userId);
-            // console.log("USER: ", existingUser)
             if (!existingUser) {
-                return new CustomResponse<number>(null, ResultType.WARNING, "Usuario no encontrado.", 404);
+                return new CustomResponse<boolean>(null, ResultType.WARNING, "Usuario no encontrado.", 404);
             }
-            data.user.id = existingUser.id;
-            const updatedUser = await UserDAO.updateUser(data.user);
-
+            const user: UserReq = {
+                id: existingUser.id,
+                password: existingUser.password,
+                name: data.name,
+                email: data.email,
+                cellphone: data.cellphone
+            }
+            const updatedUser = await UserDAO.updateUser(user);
+            console.log("updatedUser: ", updatedUser)
             const updatedProfessor = await ProfessorDAO.updateProfessor({
                 id: existingProfessor.id,
                 code: data.code,
@@ -99,15 +100,14 @@ export class ProfessorService {
             });
 
             if (!updatedProfessor)
-                return new CustomResponse<number>(null, ResultType.ERROR, "Profesor no actualizado.", 404);
+                return new CustomResponse<boolean>(null, ResultType.ERROR, "Profesor no actualizado.", 404);
 
-            return new CustomResponse<number>(updatedUser.id, ResultType.OK, "Profesor actualizado exitosamente.", 200);
+            return new CustomResponse<boolean>(true, ResultType.OK, "Profesor actualizado exitosamente.", 200);
 
         } catch (error) {
-            console.error(error);
             if (error instanceof Error)
                 console.error(error);
-            throw new Error("Error desconocido al insertar la tesis");
+            throw new Error("Error desconocido al obtener los publicaciones");
         }
     }
 
