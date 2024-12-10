@@ -1,139 +1,177 @@
 "use client";
-import Image from "next/image";
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 
+import Image from "next/image";
+import { useState } from "react";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
   CardContent,
   CardFooter,
+  CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { ArrowLeftIcon } from "lucide-react";
+
+const loginSchema = z.object({
+  email: z.string().min(1, "El campo es obligatorio").email("Correo inválido"),
+  password: z.string().min(1, "El campo es obligatorio"),
+});
+
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
-
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
-  const [forgotEmail, setForgotEmail] = useState<string>("");
   const [forgotPassword, setForgotPassword] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  useEffect(() => {
-    const accessToken = localStorage.getItem("accessToken");
+  const loginForm = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onChange",
   });
 
-  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
+  const handleLogin = async (data: LoginFormData) => {
+    setIsLoading(true);
 
-  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleForgotEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setForgotEmail(e.target.value);
-  };
-
-  const handleForgotPassword = (e: FormEvent) => {
-    e.preventDefault();
-    // TODO: forgot email logic
-    console.log("Forgot email:", forgotEmail);
-  };
-
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
     try {
-      console.log("data: ", e);
-    } catch {
-    } finally {
       router.push("/dashboard");
+    } catch (error) {
+      console.error("Error al iniciar sesión:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card
+      className="w-[400px] max-h-[85vh] overflow-y-auto"
+      style={{ clipPath: "inset(0 round 0.45rem)" }}
+    >
       <CardHeader className="items-center">
-        <Image
-          src="/bildin-logo-black-text.svg"
-          alt="Bildin logo"
-          width={166}
-          height={56}
-        />
+        <Image src="/infologo.png" alt="Info Logo" width={166} height={56} />
+        <CardTitle className="text-primary">Inicio de Sesión</CardTitle>
       </CardHeader>
       {forgotPassword ? (
         <>
           <CardContent>
-            <form onSubmit={handleForgotPassword}>
-              <div className="mb-4">
-                <Label htmlFor="email">Correo:</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={forgotEmail}
-                  onChange={handleForgotEmailChange}
-                  required
-                  placeholder={"enterEmail"}
-                  className="mt-2"
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                {"sendEmail"}
-              </Button>
-            </form>
+            <Form {...loginForm}>
+              <form
+                onSubmit={loginForm.handleSubmit(() =>
+                  setForgotPassword(false)
+                )}
+              >
+                <div className="w-full space-y-4">
+                  <FormField
+                    name="email"
+                    control={loginForm.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="w-full text-primary">
+                          Correo:
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Ingrese su correo electrónico"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    className="w-full text-white bg-primary hover:bg-primary-dark"
+                    type="submit"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Enviando..." : "Enviar correo electrónico"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </CardContent>
           <CardFooter className="justify-center items-center">
-            <a
-              className="text-sm text-gray-600 hover:underline cursor-pointer"
+            <div
+              className="flex items-center text-sm text-gray-600 hover:underline cursor-pointer"
               onClick={() => setForgotPassword(false)}
             >
-              {"alreadyUser"}
-            </a>
+              <ArrowLeftIcon className="w-4 h-4 mr-1" />
+              {"Regresar"}
+            </div>
           </CardFooter>
         </>
       ) : (
         <>
           <CardContent>
-            <form onSubmit={handleLogin}>
-              <div className="mb-4">
-                <Label htmlFor="email">{"email"}:</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  required
-                  placeholder={"enterEmail"}
-                  className="mt-2"
-                />
-              </div>
-              <div className="mb-6">
-                <Label htmlFor="password">{"password"}:</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={handlePasswordChange}
-                  required
-                  placeholder={"enterPassword"}
-                  className="mt-2"
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                {"login"}
-              </Button>
-            </form>
+            <Form {...loginForm}>
+              <form onSubmit={loginForm.handleSubmit(handleLogin)}>
+                <div className="w-full space-y-4">
+                  <FormField
+                    name="email"
+                    control={loginForm.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="w-full text-primary">
+                          Correo:
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            placeholder="Ingrese su correo electrónico"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    name="password"
+                    control={loginForm.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="w-full text-primary">
+                          Contraseña:
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            type="password"
+                            placeholder="Ingrese su contraseña"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div
+                    className="text-sm hover:underline cursor-pointer"
+                    onClick={() => setForgotPassword(true)}
+                  >
+                    ¿Has olvidado tu contraseña?
+                  </div>
+                  <Button
+                    className="w-full text-white bg-primary hover:bg-primary-dark"
+                    type="submit"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Ingresando..." : "Ingresar"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
           </CardContent>
-          <CardFooter className="justify-center items-center">
-            <a
-              className="text-sm text-gray-600 hover:underline cursor-pointer"
-              onClick={() => setForgotPassword(true)}
-            >
-              {"forgotPassword"}
-            </a>
-          </CardFooter>
         </>
       )}
     </Card>
