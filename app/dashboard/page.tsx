@@ -5,6 +5,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 import RecordPage from "@/components/dashboard/records/RecordPage";
 import ProfessorPage from "@/components/dashboard/professors/ProfessorPage";
+import ProcedurePage from "@/components/dashboard/procedures/ProcedurePage";
 import { CircleUserRound, LogOut, Settings, Menu } from "lucide-react";
 import {
   DropdownMenu,
@@ -52,7 +53,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex flex-col flex-1 mb-4 mx-4 sm:mx-6 md:mx-8 lg:mr-10 xl:mr-12 mt-16 gap-2">
           {activePage === "#docentes" && <ProfessorPage />}
-          {activePage === "#tramites" && null}
+          {activePage === "#tramites" && <ProcedurePage />}
           {activePage === "#registros" && <RecordPage />}
         </div>
 

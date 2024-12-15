@@ -12,7 +12,7 @@ import React, { useEffect, useState } from "react";
 import { ProfessorDeleteDialog } from "./ProfessorDeleteDialog";
 import { ProfessorAddDialog } from "./ProfessorAddDialog";
 import axios from "axios";
-import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
+import { ProfessorReq } from "@/app/beans/request/professorReq";
 import { CustomResponse } from "@/app/beans/customResponse";
 import BarLoader from "react-spinners/BarLoader";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
@@ -21,25 +21,12 @@ interface TableDemoProps {
   filter?: string;
 }
 
-export interface Thesis {
-  id: number;
-  resolutionCode: string;
-  name: string;
-  type: { name: string };
-  firstStudentName?: string;
-  secondStudentName?: string;
-  date?: string;
-  professorsThesis: {
-    professor: { user: { name: string } };
-    charge: { name: string };
-  }[];
-}
-
 export function ProfessorTable({ filter }: TableDemoProps) {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<ProfessorDTO[]>([]);
+  const [data, setData] = useState<ProfessorReq[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedThesis, setSelectedThesis] = useState<ThesisDTO | null>(null);
+  const [selectedProfessor, setSelectedProfessor] =
+    useState<ProfessorReq | null>(null);
   const [showModalEdit, setShowModalEdit] = useState(false);
 
   useEffect(() => {
@@ -48,11 +35,21 @@ export function ProfessorTable({ filter }: TableDemoProps) {
 
       try {
         const response = await axios.get<CustomResponse<ProfessorDTO[]>>(
-          "/api/professor"
+          "/api/professors"
         );
 
         console.log("response: ", response);
-        setData(response.data.result || []);
+        const mappedData =
+          response.data.result?.map((professor) => ({
+            id: professor.id,
+            name: professor.user?.name || "",
+            email: professor.user?.email || "",
+            cellphone: professor.user?.cellphone || "",
+            code: professor.code || "",
+            gradeId: professor.grade?.id || 0,
+          })) || [];
+
+        setData(mappedData);
       } catch (error) {
         console.error("Error fetching professors:", error);
       } finally {
@@ -62,30 +59,36 @@ export function ProfessorTable({ filter }: TableDemoProps) {
     fetchTheses();
   }, []);
 
-  const openEditModal = (thesisIdEdit: string) => {
-    const thesis = data.find((thesis) => thesis.id.toString() === thesisIdEdit);
+  const openEditModal = (professorIdEdit: string) => {
+    const professor = data.find(
+      (professor) => professor.id?.toString() === professorIdEdit
+    );
 
-    setSelectedThesis(thesis || null);
+    setSelectedProfessor(professor || null);
     setShowModalEdit(true);
   };
 
   const openModal = (thesisId: string) => {
-    const thesis = data.find((thesis) => thesis.id.toString() === thesisId);
+    const professor = data.find(
+      (professor) => professor.id?.toString() === thesisId
+    );
 
-    setSelectedThesis(thesis || null);
+    setSelectedProfessor(professor || null);
     setShowModal(true);
   };
 
   const handleDelete = async () => {
-    if (selectedThesis) {
+    if (selectedProfessor) {
       try {
-        await axios.put(`/api/thesis/${selectedThesis.id}`);
+        await axios.put(`/api/professors/${selectedProfessor.id}`);
 
-        setData(data.filter((thesis) => thesis.id !== selectedThesis.id));
+        setData(
+          data.filter((professor) => professor.id !== selectedProfessor.id)
+        );
         setShowModal(false);
-        setSelectedThesis(null);
+        setSelectedProfessor(null);
       } catch (error) {
-        console.error("Error deleting thesis:", error);
+        console.error("Error deleting professor:", error);
       }
     }
   };
@@ -115,20 +118,20 @@ export function ProfessorTable({ filter }: TableDemoProps) {
               data.map((professor) => (
                 <TableRow key={professor.code}>
                   <TableCell>{professor.code}</TableCell>
-                  <TableCell>{professor.user?.name}</TableCell>
-                  <TableCell>{professor.user?.email}</TableCell>
+                  <TableCell>{professor.name}</TableCell>
+                  <TableCell>{professor.email}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-4">
                       <Pencil
                         className="cursor-pointer text-primary"
                         size={18}
-                        onClick={() => openEditModal(professor.id.toString())}
+                        onClick={() => openEditModal(professor.id!.toString())}
                       />
                       <Trash2
                         className="cursor-pointer"
                         color="red"
                         size={18}
-                        onClick={() => openModal(professor.id.toString())}
+                        onClick={() => openModal(professor.id!.toString())}
                       />
                     </div>
                   </TableCell>
@@ -155,7 +158,7 @@ export function ProfessorTable({ filter }: TableDemoProps) {
       <ProfessorAddDialog
         isOpen={showModalEdit}
         setIsOpen={setShowModalEdit}
-        record={selectedThesis!}
+        professor={selectedProfessor!}
       />
       <ProfessorDeleteDialog
         isOpen={showModal}

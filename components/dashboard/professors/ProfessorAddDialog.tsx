@@ -17,12 +17,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import {
   Form,
   FormField,
   FormItem,
@@ -36,40 +30,38 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarIcon, ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDownIcon } from "lucide-react";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { CustomResponse, ResultType } from "@/app/beans/customResponse";
-import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
+import { ProfessorReq } from "@/app/beans/request/professorReq";
+import { GradeDTO } from "@/app/beans//dto/gradeDTO";
 
 export function ProfessorAddDialog({
   isOpen,
   setIsOpen,
-  record,
+  professor,
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  record: ThesisDTO;
+  professor: ProfessorReq;
 }) {
-  const [thesisTypes, setThesisTypes] = useState<
-    Array<{ id: string; name: string }>
-  >([]);
+  const [professorGrades, setProfessorGrades] = useState<GradeDTO[]>([]);
   const [professors, setProfessors] = useState<ProfessorDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    axios
-      .get("/api/thesis-type")
-      .then((response) => setThesisTypes(response.data))
-      .catch((error) =>
-        console.error("Error obteniendo tipos de tesis:", error)
-      );
-  }, []);
+    if (isOpen) {
+      axios
+        .get("/api/grades")
+        .then((response) => setProfessorGrades(response.data.result))
+        .catch((error) => console.error("Error obteniendo los grados:", error));
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     axios
-      .get<CustomResponse<ProfessorDTO[]>>("/api/professor")
+      .get<CustomResponse<ProfessorDTO[]>>("/api/professors")
       .then((response) => {
-        console.log("RESULT:", response.data.result);
         setProfessors(response.data.result || []);
       })
       .catch((error) =>
@@ -78,120 +70,72 @@ export function ProfessorAddDialog({
   }, []);
 
   const formSchema = z.object({
-    id: z.number().optional(),
-    thesisTypeId: z.string().min(1, "El campo es obligatorio"),
-    thesisName: z.string().min(1, "El campo es obligatorio"),
-    bachelor1: z.string().min(1, "El campo es obligatorio"),
-    bachelor2: z.string().optional(),
-    resolutionCode: z.string().min(1, "El campo es obligatorio"),
-    defenseDate: z.date().optional(),
-    presidentId: z.string().min(1, "El campo es obligatorio"),
-    secretaryId: z.string().min(1, "El campo es obligatorio"),
-    vocalId: z.string().min(1, "El campo es obligatorio"),
-    advisorId: z.string().min(1, "El campo es obligatorio"),
+    code: z.string().min(1, "El campo es obligatorio"),
+    name: z.string().min(1, "El campo es obligatorio"),
+    email: z
+      .string()
+      .min(1, "El campo es obligatorio")
+      .email("Correo inválido"),
+    cellphone: z.string().min(1, "El campo es obligatorio"),
+    gradeId: z.number({
+      required_error: "El campo es obligatorio",
+    }),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      id: undefined,
-      thesisTypeId: "",
-      thesisName: "",
-      bachelor1: "",
-      bachelor2: "",
-      resolutionCode: "",
-      defenseDate: undefined,
-      presidentId: "",
-      secretaryId: "",
-      vocalId: "",
-      advisorId: "",
+      code: "",
+      name: "",
+      email: "",
+      cellphone: "",
+      gradeId: undefined,
     },
   });
 
   useEffect(() => {
     if (isOpen) {
       form.reset({
-        id: record?.id || 0,
-        thesisTypeId: record?.type?.id.toString() || "",
-        thesisName: record?.name || "",
-        bachelor1: record?.firstStudentName || "",
-        bachelor2: record?.secondStudentName || "",
-        resolutionCode: record?.resolutionCode || "",
-        defenseDate: record?.date ? new Date(record.date) : undefined,
-        presidentId:
-          record?.professorsThesis
-            ?.find((p) => p.charge?.name === "Presidente")
-            ?.professor?.id?.toString() || "",
-        secretaryId:
-          record?.professorsThesis
-            ?.find((p) => p.charge?.name === "Secretario")
-            ?.professor?.id?.toString() || "",
-        vocalId:
-          record?.professorsThesis
-            ?.find((p) => p.charge?.name === "Vocal")
-            ?.professor?.id?.toString() || "",
-        advisorId:
-          record?.professorsThesis
-            ?.find((p) => p.charge?.name === "Asesor")
-            ?.professor?.id?.toString() || "",
+        code: professor?.code || "",
+        name: professor?.name || "",
+        email: professor?.email || "",
+        cellphone: professor?.cellphone || "",
+        gradeId: professor?.gradeId || undefined,
       });
     }
-  }, [isOpen, record, form]);
+  }, [isOpen, professor, form]);
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    const recordData: ThesisDTO = {
-      id: data.id ? Number(data.id) : 0,
-      type: { id: Number(data.thesisTypeId) },
-      name: data.thesisName.trim(),
-      firstStudentName: data.bachelor1.trim(),
-      secondStudentName: data.bachelor2?.trim(),
-      resolutionCode: data.resolutionCode.trim(),
-      date: data.defenseDate ? new Date(data.defenseDate) : null,
-      professorsThesis: [
-        { charge: { id: 1 }, professor: { id: Number(data.presidentId) } },
-        { charge: { id: 2 }, professor: { id: Number(data.secretaryId) } },
-        { charge: { id: 3 }, professor: { id: Number(data.vocalId) } },
-        { charge: { id: 4 }, professor: { id: Number(data.advisorId) } },
-      ],
+    const professorData = {
+      name: data.name.trim(),
+      email: data.email.trim(),
+      cellphone: data.cellphone.trim(),
+      code: data.code.trim(),
+      gradeId: data.gradeId,
     };
-    console.log("recordData: ", recordData);
+
+    console.log("professorData:", professorData);
 
     try {
-      if (!record) {
-        axios
-          .post<CustomResponse<number>>("/api/thesis", recordData)
-          .then((response) => {
-            if (response.data.resultType == ResultType.OK)
-              //TODO: Notificacion que comunique la accion se registro correctamente (se puede usar el data.message)
-              console.log("REGISTRO CORRECTAMENTE");
-            else {
-              //TODO: Notificacion que comunique la accion se registro correctamente (se puede usar el data.message)
-              console.log("ERROR/ADVERTENCIA AL REGISTRAR");
-            }
-          })
-          .catch((error) =>
-            console.error("Error obteniendo al insertar tesis:", error)
-          );
+      if (!professor) {
+        const response = await axios.post("/api/professors", professorData, {
+          headers: { "Content-Type": "application/json" },
+        });
+        console.log("Profesor registrado:", response.data);
       } else {
-        axios
-          .put("/api/thesis", recordData)
-          .then((response) => {
-            if (response.data.resultType == ResultType.OK)
-              //TODO: Notificacion que comunique la accion se registro correctamente (se puede usar el data.message)
-              console.log("ACTUALIZACION EXITOSA");
-            else {
-              //TODO: Notificacion que comunique hubo un inconveniente (se puede usar el data.message)
-              console.log("ERROR/ADVERTENCIA AL ACTUALIZAR");
-            }
-          })
-          .catch((error) =>
-            console.error("Error obteniendo al actualizar tesis:", error)
-          );
+        const response = await axios.put(
+          "/api/professors",
+          { id: professor.id, ...professorData },
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        console.log("Profesor registrado:", response.data);
       }
     } catch (error) {
-      console.error("Error submitting record:", error);
+      console.error("Error en la solicitud:");
     } finally {
       setIsLoading(false);
       setIsOpen(false);
@@ -206,10 +150,10 @@ export function ProfessorAddDialog({
       >
         <DialogHeader>
           <DialogTitle className="text-primary">
-            {!record ? "Nuevo Docente" : "Editar Docente"}
+            {!professor ? "Nuevo Docente" : "Editar Docente"}
           </DialogTitle>
           <DialogDescription>
-            {!record
+            {!professor
               ? "Ingresa los datos del nuevo docente."
               : "Edita los datos del docente."}
           </DialogDescription>
@@ -217,31 +161,96 @@ export function ProfessorAddDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)}>
+            <div className="flex gap-4 w-full">
+              <div className="w-1/2">
+                <FormField
+                  control={form.control}
+                  name="code"
+                  render={({ field }) => {
+                    return (
+                      <FormItem className="flex flex-col">
+                        <FormLabel className="w-full text-primary">
+                          Código:
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            className="w-full text-gray-600"
+                            placeholder="Ingrese el código del docente"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
+              <div className="w-1/2">
+                <FormField
+                  control={form.control}
+                  name="gradeId"
+                  render={({ field }) => {
+                    return (
+                      <FormItem className="flex flex-col">
+                        <FormLabel className="w-full text-primary">
+                          Grado:
+                        </FormLabel>
+                        <FormControl>
+                          <div className="flex-1 text-primary w-full">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal px-3",
+                                    field.value
+                                      ? "text-gray-600"
+                                      : "text-muted-foreground"
+                                  )}
+                                >
+                                  {field.value
+                                    ? professorGrades.find(
+                                        (grade) =>
+                                          grade.id === Number(field.value)
+                                      )?.name
+                                    : "Seleccione el grado"}
+                                  <ChevronsUpDownIcon className="ml-auto h-4 w-4 text-gray-500" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="w-full">
+                                <DropdownMenuRadioGroup
+                                  value={field.value?.toString()}
+                                  onValueChange={(value) =>
+                                    field.onChange(Number(value))
+                                  }
+                                >
+                                  <ScrollArea className="h-full max-h-32">
+                                    {Array.isArray(professorGrades) &&
+                                      professorGrades.map((grade) => (
+                                        <DropdownMenuRadioItem
+                                          key={grade.id}
+                                          value={grade.id.toString()}
+                                        >
+                                          {grade.name}
+                                        </DropdownMenuRadioItem>
+                                      ))}
+                                  </ScrollArea>
+                                </DropdownMenuRadioGroup>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
+                />
+              </div>
+            </div>
             <div className="flex flex-col gap-4 mt-2">
               <FormField
                 control={form.control}
-                name="thesisName"
-                render={({ field }) => {
-                  return (
-                    <FormItem className="flex flex-col">
-                      <FormLabel className="w-full text-primary">
-                        Código:
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          className="w-full text-gray-600"
-                          placeholder="Ingrese el código del docente"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  );
-                }}
-              />
-              <FormField
-                control={form.control}
-                name="bachelor1"
+                name="name"
                 render={({ field }) => {
                   return (
                     <FormItem className="flex flex-col">
@@ -262,7 +271,7 @@ export function ProfessorAddDialog({
               />
               <FormField
                 control={form.control}
-                name="bachelor2"
+                name="email"
                 render={({ field }) => {
                   return (
                     <FormItem className="flex flex-col">
@@ -276,13 +285,14 @@ export function ProfessorAddDialog({
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   );
                 }}
               />
               <FormField
                 control={form.control}
-                name="resolutionCode"
+                name="cellphone"
                 render={({ field }) => {
                   return (
                     <FormItem className="flex flex-col">
@@ -304,7 +314,11 @@ export function ProfessorAddDialog({
             </div>
             <DialogFooter className="mt-4">
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Guardando..." : record ? "Actualizar" : "Guardar"}
+                {isLoading
+                  ? "Guardando..."
+                  : professor
+                  ? "Actualizar"
+                  : "Guardar"}
               </Button>
             </DialogFooter>
           </form>
