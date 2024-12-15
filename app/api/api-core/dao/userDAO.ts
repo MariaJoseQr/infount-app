@@ -43,7 +43,7 @@ export class UserDAO {
                     name: data.name!,
                     email: data.email!,
                     cellphone: data.cellphone!,
-                    school: { connect: { id: data.school?.id } }, // Asegúrate de incluir el schoolId
+                    school: { connect: { id: data.school?.id } },
                 },
             });
             return newUser;

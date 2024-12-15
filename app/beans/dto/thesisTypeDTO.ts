@@ -1,6 +1,6 @@
 
 
-export interface ThesisType {
+export interface ThesisTypeDTO {
     id: number;
     name?: string;
 }
