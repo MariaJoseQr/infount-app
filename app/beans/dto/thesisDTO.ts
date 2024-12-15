@@ -1,5 +1,5 @@
 import { ProfessorThesisDTO } from "./professorsThesisDTO";
-import { ThesisType } from "./thesisTypeDTO";
+import { ThesisTypeDTO } from "./thesisTypeDTO";
 
 export interface ThesisDTO {
     id: number;
@@ -8,7 +8,7 @@ export interface ThesisDTO {
     date?: Date | null;
     firstStudentName?: string;
     secondStudentName?: string;
-    type?: ThesisType;
+    type?: ThesisTypeDTO;
     professorsThesis?: ProfessorThesisDTO[];
 
     createdAt?: Date;

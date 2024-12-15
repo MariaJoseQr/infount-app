@@ -48,7 +48,7 @@ export function ProfessorTable({ filter }: TableDemoProps) {
 
       try {
         const response = await axios.get<CustomResponse<ProfessorDTO[]>>(
-          "/api/professor"
+          "/api/professors"
         );
 
         console.log("response: ", response);

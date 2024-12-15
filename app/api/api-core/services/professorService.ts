@@ -58,7 +58,7 @@ export class ProfessorService {
         } catch (error) {
             if (error instanceof Error)
                 console.error(error);
-            throw new Error("Error desconocido al obtener los publicaciones");
+            throw new Error("Error desconocido al obtener los docentes");
         }
     }
 
@@ -107,7 +107,7 @@ export class ProfessorService {
         } catch (error) {
             if (error instanceof Error)
                 console.error(error);
-            throw new Error("Error desconocido al obtener los publicaciones");
+            throw new Error("Error desconocido al obtener los docentes");
         }
     }
 

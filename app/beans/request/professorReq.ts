@@ -1,7 +1,7 @@
 
 
 export interface ProfessorReq {
-    id: number;
+    id?: number;
     name: string;
     email: string;
     cellphone: string;

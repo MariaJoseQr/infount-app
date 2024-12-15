@@ -67,7 +67,7 @@ export function ProfessorAddDialog({
 
   useEffect(() => {
     axios
-      .get<CustomResponse<ProfessorDTO[]>>("/api/professor")
+      .get<CustomResponse<ProfessorDTO[]>>("/api/professors")
       .then((response) => {
         console.log("RESULT:", response.data.result);
         setProfessors(response.data.result || []);

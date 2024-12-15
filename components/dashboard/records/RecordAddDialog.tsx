@@ -67,7 +67,7 @@ export function RecordAddDialog({
 
   useEffect(() => {
     axios
-      .get<CustomResponse<ProfessorDTO[]>>("/api/professor")
+      .get<CustomResponse<ProfessorDTO[]>>("/api/professors")
       .then((response) => {
         console.log("RESULT:", response.data.result);
         setProfessors(response.data.result || []);
@@ -262,9 +262,9 @@ export function RecordAddDialog({
                               >
                                 {field.value
                                   ? thesisTypes.find(
-                                      (type) =>
-                                        type.id.toString() === field.value
-                                    )?.name // Mostrar el nombre basado en el ID
+                                    (type) =>
+                                      type.id.toString() === field.value
+                                  )?.name // Mostrar el nombre basado en el ID
                                   : "Seleccione el tipo de registro"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
@@ -449,9 +449,9 @@ export function RecordAddDialog({
                               >
                                 {field.value
                                   ? professors.find(
-                                      (prof) =>
-                                        prof.id.toString() === field.value
-                                    )?.user?.name
+                                    (prof) =>
+                                      prof.id.toString() === field.value
+                                  )?.user?.name
                                   : "Seleccione un docente"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
@@ -505,9 +505,9 @@ export function RecordAddDialog({
                               >
                                 {field.value
                                   ? professors.find(
-                                      (prof) =>
-                                        prof.id.toString() === field.value
-                                    )?.user?.name
+                                    (prof) =>
+                                      prof.id.toString() === field.value
+                                  )?.user?.name
                                   : "Seleccione un docente"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
@@ -561,9 +561,9 @@ export function RecordAddDialog({
                               >
                                 {field.value
                                   ? professors.find(
-                                      (prof) =>
-                                        prof.id.toString() === field.value
-                                    )?.user?.name
+                                    (prof) =>
+                                      prof.id.toString() === field.value
+                                  )?.user?.name
                                   : "Seleccione un docente"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>
@@ -618,9 +618,9 @@ export function RecordAddDialog({
                               >
                                 {field.value
                                   ? professors.find(
-                                      (prof) =>
-                                        prof.id.toString() === field.value
-                                    )?.user?.name
+                                    (prof) =>
+                                      prof.id.toString() === field.value
+                                  )?.user?.name
                                   : "Seleccione un docente"}
                                 <ChevronsUpDown className="ml-auto h-4 w-4 text-gray-500" />
                               </Button>

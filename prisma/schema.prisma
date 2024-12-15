@@ -178,31 +178,34 @@ model ThesisType {
   updateUserId      Int?
 
   theses      Thesis[] // Relación 1 a muchos con Thesis
-  procedures  Procedure[] // Relación 1 a muchos con Procedure
+  //procedures  Procedure[] // Relación 1 a muchos con Procedure
 }
 
 model Procedure {
   id              Int        @id @default(autoincrement())
+  code            String     @unique // Nuevo campo para un código único del procedimiento
+  startDate       DateTime   // Nuevo campo para la fecha de inicio
   endDate         DateTime
-  thesisAmount    Int
+  amount          Int        // Renombrado desde thesisAmount
+
+  thesisTypeIds   String     // Almacena los IDs de tipos de tesis como una cadena delimitada por comas
+  chargeIds       String     // Almacena los IDs de cargos como una cadena delimitada por comas
 
   // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
+  isDeleted       Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  creationUserId  Int?
+  updatedAt       DateTime?  @updatedAt
+  updateUserId    Int?
 
-  professorId     Int       // FK hacia Professor
+  professorId     Int        // FK hacia Professor
   professor       Professor  @relation(fields: [professorId], references: [id])
-  typeId          Int       // FK hacia ProcedureType
+  typeId          Int        // FK hacia ProcedureType
   type            ProcedureType @relation(fields: [typeId], references: [id])
-  stateId         Int       // FK hacia State
-  state           State     @relation(fields: [stateId], references: [id])
-  thesisTypeId    Int       // FK hacia ThesisType
-  thesisType      ThesisType @relation(fields: [thesisTypeId], references: [id])
-  constancyId     Int?      @unique // FK hacia Constancy, debe ser único para relación 1 a 1
-  constancy       Constancy? @relation(fields: [constancyId], references: [id]) // Relación 1 a 1 con Constancy
+  stateId         Int        // FK hacia State
+  state           State      @relation(fields: [stateId], references: [id])
+  constancyId     Int?       @unique // FK hacia Constancy, debe ser único para relación 1 a 1
+  constancy       Constancy? @relation(fields: [constancyId], references: [id])
 }
 
 model ProcedureType {
