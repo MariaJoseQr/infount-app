@@ -184,12 +184,12 @@ model ThesisType {
 model Procedure {
   id              Int        @id @default(autoincrement())
   code            String     @unique // Nuevo campo para un código único del procedimiento
-  startDate       DateTime   // Nuevo campo para la fecha de inicio
-  endDate         DateTime
+  startDate       DateTime?  // Nuevo campo para la fecha de inicio
+  endDate         DateTime?
   amount          Int        // Renombrado desde thesisAmount
 
-  thesisTypeIds   String     // Almacena los IDs de tipos de tesis como una cadena delimitada por comas
-  chargeIds       String     // Almacena los IDs de cargos como una cadena delimitada por comas
+  thesisTypeIds   String?     // Almacena los IDs de tipos de tesis como una cadena delimitada por comas
+  chargeIds       String?     // Almacena los IDs de cargos como una cadena delimitada por comas
 
   // Campos de auditoría
   isDeleted       Boolean    @default(false)

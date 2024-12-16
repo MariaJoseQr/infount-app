@@ -22,6 +22,8 @@ export async function POST(request: NextRequest) {
     try {
         const body: ProcedureDTO = await request.json();
 
+        console.log("body: ", body)
+
         const response: CustomResponse<number> = await ProcedureService.createProcedure(body);
         return new NextResponse(JSON.stringify(response), { status: response.status });
 

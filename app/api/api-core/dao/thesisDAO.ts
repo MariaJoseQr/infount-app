@@ -70,6 +70,43 @@ export class ThesisDAO {
         }
     }
 
+    static async getConstancyThesis(amount: number, professorId: number, thesisTypeIds: number[], chargeIds: number[], startDate?: Date, endDate?: Date) {
+        try {
+            const thesis = await db.thesis.findMany({
+                where: {
+                    isDeleted: false,
+                    AND: [
+                        thesisTypeIds.length > 0 ? {
+                            type: { id: { in: thesisTypeIds }, },
+                        } : {},
+                        {
+                            professorsThesis: {
+                                some: {
+                                    professorId: professorId,
+                                    chargeId: chargeIds.length > 0 ? { in: chargeIds } : undefined,
+                                },
+                            },
+                        },
+                        // startDate ? { date: { gte: startDate } } : {},
+                        // endDate ? { date: { lte: endDate } } : {},
+                    ],
+                },
+                take: amount,
+                select: {
+                    id: true, name: true
+                },
+            });
+            console.log("TESIIIIISES DAO: ", thesis)
+
+            return thesis;
+
+        } catch (error) {
+            if (error instanceof Error)
+                console.error(error);
+            throw new Error("Error desconocido al obtener las tesis");
+        }
+    }
+
     static async createThesis(data: Prisma.ThesisCreateInput): Promise<Thesis> {
         try {
             return await db.thesis.create({

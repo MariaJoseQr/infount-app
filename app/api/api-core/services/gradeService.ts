@@ -1,11 +1,8 @@
 // import { Professor } from "@prisma/client";
 
 import { CustomResponse, ResultType } from "@/app/beans/customResponse";
-// import { ProfessorDAO } from "../dao/professorDAO";
-// import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { GradeDTO } from "@/app/beans/dto/gradeDTO";
 import { GradeDAO } from "../dao/gradeDAO";
-// import { ProfessorReq } from "@/app/beans/request/professorReq";
 export class GradeService {
 
     static async getAllGrades(): Promise<CustomResponse<GradeDTO[]>> {

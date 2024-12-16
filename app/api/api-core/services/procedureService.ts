@@ -2,6 +2,10 @@
 
 import { CustomResponse, ResultType } from "@/app/beans/customResponse";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
+import { ThesisDAO } from "../dao/thesisDAO";
+import { Prisma } from "@prisma/client";
+// import { ProcedureDAO } from "../dao/procedureDAO";
+// import { ConstancyDAO } from "../dao/constancyDAO";
 
 export class ProcedureService {
 
@@ -23,33 +27,42 @@ export class ProcedureService {
 
     static async createProcedure(data: ProcedureDTO): Promise<CustomResponse<number>> {
         try {
-            // console.log("Datos recibidos:", data);
-
-            if (data.registerTypes?.length === 0 || !data.professorDTO)
+            if (data.registerTypes?.length === 0 || !data.professor || !data.constancy?.fileNumber || !data.constancy?.registrationNumber)
                 return new CustomResponse<number>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar el tramite.", 400);
 
             //TODO: Validaciones para ver si ya existe tramite (codigo, ver si el profesor ya tiene un tramite en proceso, profesor con mismos atributos de solicitud) 
 
-            /*
+            //TODO: SELECT THESIS.DAO
+            const thesis = ThesisDAO.getConstancyThesis(data.amount ?? 20, data.professor.id, data.registerTypes?.map(x => x.id) ?? [], data.charges ? data.charges.map(x => x.id) : [], data.endDate, data.startDate);
+            console.log("TESIIIIISES: ", thesis)
+
+
             const procedureReq: Prisma.ProcedureCreateInput = {
+                code: "P001",
+                type: { connect: { id: 1 }, },
+                state: { connect: { id: 1 }, },
                 amount: data.amount ?? 20,
-                thesisTypeIds: data.registerTypes?.join(",") || "",
-                // professor: data.professorDTO.id,
-                startDate: data.startDate ? new Date(data.startDate) : new Date(), 
-                endDate: data.endDate ? new Date(data.endDate) : new Date(),
-                chargeIds: data.charges?.join(",") || "", 
+                thesisTypeIds: data.registerTypes?.map(item => item.id).join(",") || null,
+                professor: { connect: { id: data.professor.id }, },
+                startDate: data.startDate ? new Date(data.startDate) : null,
+                endDate: data.endDate ? new Date(data.endDate) : null,
+                chargeIds: data.charges?.map(item => item.id).join(",") || null,
             };
+            //const newProcedure = await ProcedureDAO.createProcedure(procedureReq);
+            console.log("newProcedure: ", procedureReq);
 
-            console.log(procedureReq);
-*/
+            const constancyReq: Prisma.ConstancyCreateInput = {
+                registrationNumber: data.constancy?.fileNumber,
+                fileNumber: data.constancy?.registrationNumber,
+                date: new Date(),
+                // procedureId: newProcedure.id,
+                professor: { connect: { id: data.professor.id }, },
+            }
+            //const newConstancy = await ConstancyDAO.createConstancy(constancyReq);
+            console.log("newConstancy: ", constancyReq);
 
-            // const newUser = await UserDAO.createUser(userReq);
+            //TODO: INSERT CONSTNACY-THESIS.DAO
 
-            // const newProfessor = await ProfessorDAO.createProfessor({
-            //     code: data.code,
-            //     gradeId: data.gradeId,
-            //     userId: newUser.id,
-            // });
 
             return new CustomResponse<number>(data.id, ResultType.OK, "Profesor registrado exitosamente.", 201);
 
