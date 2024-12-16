@@ -6,13 +6,14 @@ import { ThesisTypeDTO } from "./thesisTypeDTO";
 
 export interface ProcedureDTO {
     id?: number;
-    registerTypes: ThesisTypeDTO[];
-    professorDTO: ProfessorDTO;
+    registerTypes?: ThesisTypeDTO[];
+    professor: ProfessorDTO;
     amount?: number;
     startDate?: Date;
     endDate?: Date;
     state?: StateProcedureDTO;
     charges?: ChargeDTO[];
     code?: string;
+
     constancy?: ConstancyDTO;
 }

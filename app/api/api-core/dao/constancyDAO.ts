@@ -1,9 +1,9 @@
 // import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { db } from "@/lib/db";
-import { Prisma, Procedure } from "@prisma/client";
+import { Constancy, Prisma } from "@prisma/client";
 //  import { Professor } from "@prisma/client";
 
-export class ProcedureDAO {
+export class ConstancyDAO {
 
     // static async getAllProfessors(): Promise<ProfessorDTO[]> {
     //     try {
@@ -29,10 +29,10 @@ export class ProcedureDAO {
     //     }
     // }
 
-    static async createProcedure(procedureData: Prisma.ProcedureCreateInput): Promise<Procedure> {
+    static async createConstancy(constancyData: Prisma.ConstancyCreateInput): Promise<Constancy> {
         try {
-            return await db.procedure.create({
-                data: procedureData,
+            return await db.constancy.create({
+                data: constancyData,
             });
         } catch (error) {
             if (error instanceof Error) throw new Error(error.message);
