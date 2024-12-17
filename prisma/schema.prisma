@@ -183,7 +183,6 @@ model ThesisType {
 
 model Procedure {
   id              Int        @id @default(autoincrement())
-  code            String     @unique // Nuevo campo para un código único del procedimiento
   startDate       DateTime?  // Nuevo campo para la fecha de inicio
   endDate         DateTime?
   amount          Int        // Renombrado desde thesisAmount

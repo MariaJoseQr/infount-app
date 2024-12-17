@@ -1,9 +1,9 @@
 // import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { db } from "@/lib/db";
-import { Constancy, ConstancyThesis, Prisma } from "@prisma/client";
+import { ConstancyThesis, Prisma } from "@prisma/client";
 //  import { Professor } from "@prisma/client";
 
-export class ConstancyDAO {
+export class ConstancyThesisDAO {
 
     // static async getAllProfessors(): Promise<ProfessorDTO[]> {
     //     try {
@@ -28,17 +28,6 @@ export class ConstancyDAO {
     //         throw new Error("Error desconocido al obtener los profesores");
     //     }
     // }
-
-    static async createConstancy(constancyData: Prisma.ConstancyCreateInput): Promise<Constancy> {
-        try {
-            return await db.constancy.create({
-                data: constancyData,
-            });
-        } catch (error) {
-            if (error instanceof Error) throw new Error(error.message);
-            throw new Error("Error desconocido al registrar la tesis");
-        }
-    }
 
     static async createConstancyThesis(constancyThesisReqs: Prisma.ConstancyThesisCreateInput[]): Promise<ConstancyThesis[]> {
         try {

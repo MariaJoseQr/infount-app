@@ -70,7 +70,7 @@ export class ThesisDAO {
         }
     }
 
-    static async getConstancyThesis(amount: number, professorId: number, thesisTypeIds: number[], chargeIds: number[], startDate?: Date, endDate?: Date) {
+    static async getConstancyThesis(amount: number, professorId: number, thesisTypeIds: number[], chargeIds: number[], startDate?: Date, endDate?: Date): Promise<ThesisDTO[]> {
         try {
             const thesis = await db.thesis.findMany({
                 where: {
@@ -87,8 +87,8 @@ export class ThesisDAO {
                                 },
                             },
                         },
-                        // startDate ? { date: { gte: startDate } } : {},
-                        // endDate ? { date: { lte: endDate } } : {},
+                        startDate ? { date: { gte: startDate } } : {},
+                        endDate ? { date: { lte: endDate } } : {},
                     ],
                 },
                 take: amount,
