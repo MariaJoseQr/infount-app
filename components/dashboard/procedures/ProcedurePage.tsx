@@ -1,13 +1,12 @@
-//import { RecordTable } from "./RecordTable";
-//import { RecordAddDialog } from "./RecordAddDialog";
+import { ProcedureTable } from "./ProcedureTable";
+import { ProcedureAddDialog } from "./ProcedureAddDialog";
 import { Button } from "@/components/ui/button";
-import { Import, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function RecordPage() {
-  const [selectedType, setSelectedType] = useState("");
-  const [recordAddDialogOpen, setRecordAddDialogOpen] = useState(false);
-  const [recordSelected, setRecordSelected] = useState<any | undefined>();
+  const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
+  const [procedureSelected, setProcedureSelected] = useState<any | undefined>();
 
   return (
     <>
@@ -20,36 +19,22 @@ export default function RecordPage() {
       <div className="flex ml-auto space-x-2">
         <Button
           className="text-white items-center"
-          onClick={() => setRecordAddDialogOpen(true)}
+          onClick={() => setProcedureAddDialogOpen(true)}
         >
           <Plus className="w-32 h-32" />
           <span className="text-base">Agregar Trámite</span>
         </Button>
       </div>
 
-      <div className="pt-4">
-        <p className="mt-2 font-bold">Filtros:</p>
-        <div className="mt-2 flex items-center space-x-2">
-          <p>Tipo de Investigación:</p>
-          {/*<SelectDemo onSelect={setSelectedType} />*/}
-        </div>
-      </div>
-      {/*
-      <div className="pt-4">
-        <RecordTable filter={selectedType} />
-      </div>
-      
-      <RecordAddDialog
-        isOpen={recordAddDialogOpen}
-        setIsOpen={setRecordAddDialogOpen}
-        record={recordSelected}
+      <ProcedureAddDialog
+        isOpen={procedureAddDialogOpen}
+        setIsOpen={setProcedureAddDialogOpen}
+        procedure={procedureSelected}
       />
-     
-      <RecordImportDialog
-        isOpen={recordImportDialogOpen}
-        setIsOpen={setRecordImportDialogOpen}
-      />
-      */}
+
+      <div className="pt-4">
+        <ProcedureTable />
+      </div>
     </>
   );
 }
