@@ -4,18 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
 import { ProcedureService } from "../api-core/services/procedureService";
 
-// export async function GET() {
-//     try {
-//         const response: CustomResponse<ProcedureDTO[]> = await GradeService.getAllGrades();
+export async function GET() {
+    try {
+        const response: CustomResponse<ProcedureDTO[]> = await ProcedureService.getAllProcedures();
 
-//         return new NextResponse(JSON.stringify(response), { status: response.status });
+        return new NextResponse(JSON.stringify(response), { status: response.status });
 
-//     } catch (error) {
-//         if (error instanceof Error)
-//             console.error(error);
-//         throw new Error("Error desconocido al obtener los grados");
-//     }
-// }
+    } catch (error) {
+        if (error instanceof Error)
+            console.error(error);
+        throw new Error("Error desconocido al obtener los grados");
+    }
+}
 
 /*INSERT (procedure_type = constancia)*/
 export async function POST(request: NextRequest) {
@@ -34,4 +34,17 @@ export async function POST(request: NextRequest) {
     }
 }
 
-//UPDATE
+// UPDATE
+export async function PUT(request: NextRequest) {
+    try {
+        const body: ProcedureDTO = await request.json();
+
+        const response: CustomResponse<boolean> = await ProcedureService.updateProcedure(body);
+        return new NextResponse(JSON.stringify(response), { status: response.status });
+
+    } catch (error) {
+        if (error instanceof Error)
+            console.error(error);
+        throw new Error("Error desconocido al insertar la tesis");
+    }
+}

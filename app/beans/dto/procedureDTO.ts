@@ -13,7 +13,6 @@ export interface ProcedureDTO {
     endDate?: Date;
     state?: StateProcedureDTO;
     charges?: ChargeDTO[];
-    code?: string;
 
     constancy?: ConstancyDTO;
 }

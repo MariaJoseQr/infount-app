@@ -1,33 +1,42 @@
 // import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
+import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
 import { db } from "@/lib/db";
 import { Prisma, Procedure } from "@prisma/client";
 //  import { Professor } from "@prisma/client";
 
 export class ProcedureDAO {
 
-    // static async getAllProfessors(): Promise<ProfessorDTO[]> {
-    //     try {
-    //         const proffesors: ProfessorDTO[] = await db.professor.findMany({
-    //             where: { isDeleted: false },
-    //             select: {
-    //                 id: true, code: true,
-    //                 user: {
-    //                     select: {
-    //                         id: true, name: true, username: true, email: true, schoolId: true, cellphone: true
-    //                     },
-    //                 },
-    //                 grade: { select: { id: true, abbreviation: true } },
-    //                 createdAt: true
-    //             },
-    //         });
-    //         return proffesors;
+    static async getProcedureById(id: number): Promise<Procedure | null> {
+        return db.procedure.findUnique({
+            where: { id },
+        });
+    }
 
-    //     } catch (error) {
-    //         if (error instanceof Error)
-    //             console.error(error);
-    //         throw new Error("Error desconocido al obtener los profesores");
-    //     }
-    // }
+    static async getAllProcedures(): Promise<ProcedureDTO[]> {
+        try {
+            const procedures: ProcedureDTO[] = await db.procedure.findMany({
+                where: { isDeleted: false },
+                select: {
+                    id: true, state: true,
+                    professor: {
+                        select: {
+                            id: true, grade: { select: { id: true, abbreviation: true } },
+                            user: {
+                                select: { id: true, name: true }
+                            }
+                        },
+                    },
+                    createdAt: true
+                },
+            });
+            return procedures;
+
+        } catch (error) {
+            if (error instanceof Error)
+                console.error(error);
+            throw new Error("Error desconocido al obtener los trámites");
+        }
+    }
 
     static async createProcedure(procedureData: Prisma.ProcedureCreateInput): Promise<Procedure> {
         try {
@@ -40,11 +49,7 @@ export class ProcedureDAO {
         }
     }
 
-    // static async getProfessorById(id: number): Promise<Professor | null> {
-    //     return db.professor.findUnique({
-    //         where: { id },
-    //     });
-    // }
+
 
     // static async updateProfessor(data: { id: number; code: string; gradeId: number; }): Promise<Professor> {
     //     return db.professor.update({
