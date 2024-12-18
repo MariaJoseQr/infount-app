@@ -19,6 +19,7 @@ import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { format } from "date-fns";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ConstancyPDF from "./ConstancyPDF";
+import { ConstancyDownloadDialog } from "./ConstancyPdfDialog";
 
 interface TableDemoProps {
   filter?: string;
@@ -28,9 +29,10 @@ export function ProcedureTable({ filter }: TableDemoProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ProcedureDTO[] | []>([]);
   const [showModal, setShowModal] = useState(false);
-  const [procedureSelected, setSelectedProfessor] = useState<ProcedureDTO>();
+  const [selectedProcedure, setSelectedProcedure] = useState<ProcedureDTO>();
   const [showModalEdit, setShowModalEdit] = useState(false);
   const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
+  const [showDownloadModal, setShowDonloadModal] = useState(false);
 
   useEffect(() => {
     const fetchProcedures = async () => {
@@ -51,12 +53,21 @@ export function ProcedureTable({ filter }: TableDemoProps) {
     fetchProcedures();
   }, []);
 
-  const openEditModal = (professorIdEdit: string) => {
+  const openDownloadModal = (procedureId: string) => {
     const procedure = data.find(
-      (procedure) => procedure.id?.toString() === professorIdEdit
+      (procedure) => procedure.id?.toString() === procedureId
     );
 
-    setSelectedProfessor(procedure);
+    setSelectedProcedure(procedure);
+    setShowDonloadModal(true);
+  };
+
+  const openEditModal = (procedureId: string) => {
+    const procedure = data.find(
+      (procedure) => procedure.id?.toString() === procedureId
+    );
+
+    setSelectedProcedure(procedure);
     setShowModalEdit(true);
   };
 
@@ -65,20 +76,20 @@ export function ProcedureTable({ filter }: TableDemoProps) {
       (procedure) => procedure.id?.toString() === thesisId
     );
 
-    setSelectedProfessor(procedure);
+    setSelectedProcedure(procedure);
     setShowModal(true);
   };
 
   const handleDelete = async () => {
-    if (procedureSelected) {
+    if (selectedProcedure) {
       try {
-        await axios.put(`/api/professors/${procedureSelected.id}`);
+        await axios.put(`/api/professors/${selectedProcedure.id}`);
 
         setData(
-          data.filter((procedure) => procedure.id !== procedureSelected.id)
+          data.filter((procedure) => procedure.id !== selectedProcedure.id)
         );
         setShowModal(false);
-        setSelectedProfessor(undefined);
+        setSelectedProcedure(undefined);
       } catch (error) {
         console.error("Error deleting procedure:", error);
       }
@@ -120,7 +131,7 @@ export function ProcedureTable({ filter }: TableDemoProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-4">
-                      <PDFDownloadLink
+                      {/* <PDFDownloadLink
                         document={<ConstancyPDF data={data} />}
                         fileName="procedures.pdf"
                         children={
@@ -129,8 +140,13 @@ export function ProcedureTable({ filter }: TableDemoProps) {
                             size={18}
                           />
                         }
-                      ></PDFDownloadLink>
+                      ></PDFDownloadLink> */}
 
+                      <DownloadIcon
+                        className="cursor-pointer text-primary"
+                        size={18}
+                        onClick={() => openDownloadModal(procedure.id!.toString())}
+                      />
                       <Pencil
                         className="cursor-pointer text-primary"
                         size={18}
@@ -151,10 +167,16 @@ export function ProcedureTable({ filter }: TableDemoProps) {
         </Table>
       </div>
 
+      <ConstancyDownloadDialog
+        isOpen={showDownloadModal}
+        setIsOpen={setShowDonloadModal}
+        procedure={selectedProcedure!}
+      />
+
       <ProcedureAddDialog
         isOpen={procedureAddDialogOpen}
         setIsOpen={setProcedureAddDialogOpen}
-        procedure={procedureSelected}
+        procedure={selectedProcedure}
       />
       <ProcedureDeleteDialog
         isOpen={showModal}
