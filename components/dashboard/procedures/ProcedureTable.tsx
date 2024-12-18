@@ -120,19 +120,17 @@ export function ProcedureTable({ filter }: TableDemoProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-4">
-                      {/* 
                       <PDFDownloadLink
                         document={<ConstancyPDF data={data} />}
                         fileName="procedures.pdf"
-                      >
-                        {({ loading, error }) => {
-                          if (error) return "Error al generar el documento";
-                          return loading
-                            ? "Cargando documento..."
-                            : "Descargar documento";
-                        }}
-                      </PDFDownloadLink>
-                      */}
+                        children={
+                          <DownloadIcon
+                            className="cursor-pointer text-primary"
+                            size={18}
+                          />
+                        }
+                      ></PDFDownloadLink>
+
                       <Pencil
                         className="cursor-pointer text-primary"
                         size={18}
