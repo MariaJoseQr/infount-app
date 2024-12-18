@@ -1,6 +1,7 @@
 // import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
+import { ConstancyDTO } from "@/app/beans/dto/constancyDTO";
 import { db } from "@/lib/db";
-import { Constancy, ConstancyThesis, Prisma } from "@prisma/client";
+import { Constancy, Prisma } from "@prisma/client";
 //  import { Professor } from "@prisma/client";
 
 export class ConstancyDAO {
@@ -36,26 +37,22 @@ export class ConstancyDAO {
             });
         } catch (error) {
             if (error instanceof Error) throw new Error(error.message);
-            throw new Error("Error desconocido al registrar la trámite");
+            throw new Error("Error desconocido al registrar la constancia");
         }
     }
 
-    static async createConstancyThesis(constancyThesisReqs: Prisma.ConstancyThesisCreateInput[]): Promise<ConstancyThesis[]> {
-        try {
-            return await db.$transaction(
-                constancyThesisReqs.map(req => db.constancyThesis.create({ data: req }))
-            );
-        } catch (error) {
-            if (error instanceof Error) throw new Error(error.message);
-            throw new Error("Error desconocido al registrar la constancia-tesis");
-        }
-    }
+    static async getConstancyByProcedureId(procedureId: number): Promise<ConstancyDTO | null> {
+        const constancy = await db.constancy.findFirst({
+            where: { procedureId: procedureId, isDeleted: false }
+        });
 
-    // static async getProfessorById(id: number): Promise<Professor | null> {
-    //     return db.professor.findUnique({
-    //         where: { id },
-    //     });
-    // }
+        const constancyDTO: ConstancyDTO = {
+            id: constancy?.id,
+            registrationNumber: constancy?.registrationNumber,
+            fileNumber: constancy?.fileNumber,
+        }
+        return constancyDTO;
+    }
 
     // static async updateProfessor(data: { id: number; code: string; gradeId: number; }): Promise<Professor> {
     //     return db.professor.update({

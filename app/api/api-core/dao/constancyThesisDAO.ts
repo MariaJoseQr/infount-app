@@ -1,27 +1,33 @@
 // import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
-import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
+import { ConstancyThesisDTO } from "@/app/beans/dto/constancyThesisDTO";
 import { db } from "@/lib/db";
 import { ConstancyThesis, Prisma } from "@prisma/client";
 //  import { Professor } from "@prisma/client";
 
 export class ConstancyThesisDAO {
 
-    static async getConstancyThesis(): Promise<ThesisDTO[]> {
+    static async getConstancyThesis(constancyId: number): Promise<ConstancyThesisDTO[]> {
         try {
-            const proffesors: ThesisDTO[] = await db.professor.findMany({
-                where: { isDeleted: false },
-                select: {
-                    id: true, code: true,
-                    user: {
+            const constancyThesis = await db.constancyThesis.findMany({
+                where: { constancyId: constancyId, isDeleted: false },
+                include: {
+                    thesis: {
                         select: {
-                            id: true, name: true, username: true, email: true, schoolId: true, cellphone: true
+                            id: true, name: true, resolutionCode: true, date: true, firstStudentName: true, secondStudentName: true,
+                            type: {
+                                select: { id: true, name: true }
+                            },
                         },
                     },
-                    grade: { select: { id: true, abbreviation: true } },
-                    createdAt: true
                 },
             });
-            return proffesors;
+            const constancyThesisDTO: ConstancyThesisDTO[] = constancyThesis.map(x => ({
+                constancyId: x.constancyId,
+                thesis: x.thesis
+            } as ConstancyThesisDTO));
+            // console.log("Thesis: ", constancyThesis)
+
+            return constancyThesisDTO;
 
         } catch (error) {
             if (error instanceof Error)
@@ -42,7 +48,7 @@ export class ConstancyThesisDAO {
     }
 
     // static async getProfessorById(id: number): Promise<Professor | null> {
-    //     return db.professor.findUnique({
+    //     return db.professor.findFirst({
     //         where: { id },
     //     });
     // }
