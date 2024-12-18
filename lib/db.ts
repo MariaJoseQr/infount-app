@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 
 // Crear una instancia del cliente Prisma
-const db = new PrismaClient();
+const db = new PrismaClient({
+    log: ["query", "info", "warn", "error"], // Habilita el log de consultas
+});
 
 // Manejo de errores de conexión (opcional)
 async function connectDB() {

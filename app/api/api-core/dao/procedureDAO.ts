@@ -1,15 +1,57 @@
 // import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
+import { ProcedureReq } from "@/app/beans/request/procedureReq";
 import { db } from "@/lib/db";
 import { Prisma, Procedure } from "@prisma/client";
-//  import { Professor } from "@prisma/client";
 
 export class ProcedureDAO {
 
     static async getProcedureById(id: number): Promise<Procedure | null> {
-        return db.procedure.findUnique({
-            where: { id },
+        return await db.procedure.findUnique({
+            where: { id, isDeleted: false },
         });
+    }
+
+    static async getProcedureCompleteById(id: number): Promise<ProcedureDTO | null> {
+        const procedureModel = await db.procedure.findUnique({
+            where: { id, isDeleted: false },
+            include: {
+                professor: {
+                    select: {
+                        id: true, grade: { select: { id: true, abbreviation: true } },
+                        user: {
+                            select: { id: true, name: true }
+                        }
+                    },
+                },
+                state: {
+                    select: { id: true, name: true }
+                },
+                constancy: {
+                    select: {
+                        fileNumber: true, registrationNumber: true
+                    }
+                }
+            }
+        });
+
+        if (!procedureModel) {
+            return null;
+        }
+
+        const procedureDTO: ProcedureDTO = {
+            id: procedureModel.id,
+            registerTypes: procedureModel.thesisTypeIds?.split(',').map(id => ({ id: parseInt(id) })),
+            professor: procedureModel.professor,
+            amount: procedureModel.amount,
+            startDate: procedureModel.startDate ?? undefined,
+            endDate: procedureModel.endDate ?? undefined,
+            state: procedureModel.state,
+            charges: procedureModel.chargeIds?.split(',').map(id => ({ id: parseInt(id) })),
+            constancy: procedureModel.constancy ?? undefined
+        }
+
+        return procedureDTO;
     }
 
     static async getAllProcedures(): Promise<ProcedureDTO[]> {
@@ -45,22 +87,42 @@ export class ProcedureDAO {
             });
         } catch (error) {
             if (error instanceof Error) throw new Error(error.message);
-            throw new Error("Error desconocido al registrar la tesis");
+            throw new Error("Error desconocido al registrar la trámite");
         }
     }
 
+    static async updateProcedure(data: ProcedureReq): Promise<ProcedureDTO> {
+        const procedureUpdated = await db.procedure.update({
+            where: { id: data.id },
+            data: { stateId: data.state.id, },
+            include: {
+                professor: {
+                    select: {
+                        id: true, grade: { select: { id: true, abbreviation: true } },
+                        user: {
+                            select: { id: true, name: true }
+                        }
+                    },
+                },
+                state: {
+                    select: { id: true, name: true }
+                }
+            }
+        });
 
+        const procedureDTO: ProcedureDTO = {
+            id: procedureUpdated.id,
+            registerTypes: procedureUpdated.thesisTypeIds?.split(',').map(id => ({ id: parseInt(id) })),
+            professor: procedureUpdated.professor,
+            amount: procedureUpdated.amount,
+            startDate: procedureUpdated.startDate ?? undefined,
+            endDate: procedureUpdated.endDate ?? undefined,
+            state: procedureUpdated.state,
+            charges: procedureUpdated.chargeIds?.split(',').map(id => ({ id: parseInt(id) })),
+        }
 
-    // static async updateProfessor(data: { id: number; code: string; gradeId: number; }): Promise<Professor> {
-    //     return db.professor.update({
-    //         where: { id: data.id },
-    //         data: {
-    //             code: data.code,
-    //             grade: { connect: { id: data.gradeId } },
-    //             updatedAt: new Date(),
-    //         },
-    //     });
-    // }
+        return procedureDTO;
+    }
 
     // static async deleteProfessorByUserId(userId: number): Promise<boolean> {
     //     try {

@@ -70,15 +70,17 @@ export class ThesisDAO {
         }
     }
 
-    static async getConstancyThesis(amount: number, professorId: number, thesisTypeIds: number[], chargeIds: number[], startDate?: Date, endDate?: Date): Promise<ThesisDTO[]> {
+    static async getThesisForConstancy(amount: number, professorId: number, thesisTypeIds: number[], chargeIds: number[], startDate?: Date, endDate?: Date): Promise<ThesisDTO[]> {
         try {
             const thesis = await db.thesis.findMany({
                 where: {
                     isDeleted: false,
                     AND: [
-                        thesisTypeIds.length > 0 ? {
-                            type: { id: { in: thesisTypeIds }, },
-                        } : {},
+                        ...(thesisTypeIds.length > 0
+                            ? [{
+                                type: { id: { in: thesisTypeIds } },
+                            }]
+                            : []),
                         {
                             professorsThesis: {
                                 some: {
@@ -87,16 +89,35 @@ export class ThesisDAO {
                                 },
                             },
                         },
-                        startDate ? { date: { gte: startDate } } : {},
-                        endDate ? { date: { lte: endDate } } : {},
+                        ...(startDate
+                            ? [
+                                {
+                                    OR: [
+                                        { date: null }, // Incluye registros con NULL en el campo date
+                                        { date: { gte: new Date(startDate) } },
+                                    ],
+                                },
+                            ]
+                            : []),
+                        ...(endDate
+                            ? [
+                                {
+                                    OR: [
+                                        { date: null }, // Incluye registros con NULL en el campo date
+                                        { date: { lte: endDate } },
+                                    ],
+                                },
+                            ]
+                            : []),
                     ],
                 },
                 take: amount,
                 select: {
-                    id: true, name: true
+                    id: true,
+                    name: true,
                 },
             });
-            console.log("TESIIIIISES DAO: ", thesis)
+            console.log("TESIIIIISES DAO: ", thesis);
 
             return thesis;
 

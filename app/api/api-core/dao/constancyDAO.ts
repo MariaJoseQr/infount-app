@@ -36,7 +36,7 @@ export class ConstancyDAO {
             });
         } catch (error) {
             if (error instanceof Error) throw new Error(error.message);
-            throw new Error("Error desconocido al registrar la tesis");
+            throw new Error("Error desconocido al registrar la trámite");
         }
     }
 

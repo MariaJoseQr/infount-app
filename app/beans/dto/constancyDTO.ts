@@ -1,3 +1,4 @@
+import { ThesisDTO } from "./thesisDTO";
 
 
 export interface ConstancyDTO {
@@ -5,5 +6,5 @@ export interface ConstancyDTO {
     registrationNumber?: string;
     fileNumber?: string;
 
-    // thesis?: ThesisDTO[];
+    thesis?: ThesisDTO[];
 }
