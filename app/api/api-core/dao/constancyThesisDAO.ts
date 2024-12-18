@@ -1,33 +1,34 @@
 // import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
+import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
 import { db } from "@/lib/db";
 import { ConstancyThesis, Prisma } from "@prisma/client";
 //  import { Professor } from "@prisma/client";
 
 export class ConstancyThesisDAO {
 
-    // static async getAllProfessors(): Promise<ProfessorDTO[]> {
-    //     try {
-    //         const proffesors: ProfessorDTO[] = await db.professor.findMany({
-    //             where: { isDeleted: false },
-    //             select: {
-    //                 id: true, code: true,
-    //                 user: {
-    //                     select: {
-    //                         id: true, name: true, username: true, email: true, schoolId: true, cellphone: true
-    //                     },
-    //                 },
-    //                 grade: { select: { id: true, abbreviation: true } },
-    //                 createdAt: true
-    //             },
-    //         });
-    //         return proffesors;
+    static async getConstancyThesis(): Promise<ThesisDTO[]> {
+        try {
+            const proffesors: ThesisDTO[] = await db.professor.findMany({
+                where: { isDeleted: false },
+                select: {
+                    id: true, code: true,
+                    user: {
+                        select: {
+                            id: true, name: true, username: true, email: true, schoolId: true, cellphone: true
+                        },
+                    },
+                    grade: { select: { id: true, abbreviation: true } },
+                    createdAt: true
+                },
+            });
+            return proffesors;
 
-    //     } catch (error) {
-    //         if (error instanceof Error)
-    //             console.error(error);
-    //         throw new Error("Error desconocido al obtener los profesores");
-    //     }
-    // }
+        } catch (error) {
+            if (error instanceof Error)
+                console.error(error);
+            throw new Error("Error desconocido al obtener los profesores");
+        }
+    }
 
     static async createConstancyThesis(constancyThesisReqs: Prisma.ConstancyThesisCreateInput[]): Promise<ConstancyThesis[]> {
         try {

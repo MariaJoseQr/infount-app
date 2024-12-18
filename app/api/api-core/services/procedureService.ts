@@ -8,24 +8,53 @@ import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
 import { ProcedureDAO } from "../dao/procedureDAO";
 import { ConstancyDAO } from "../dao/constancyDAO";
 import { ConstancyThesisDAO } from "../dao/constancyThesisDAO";
+import { ProcedureReq } from "@/app/beans/request/procedureReq";
 // import { ProcedureDAO } from "../dao/procedureDAO";
 // import { ConstancyDAO } from "../dao/constancyDAO";
 
 export class ProcedureService {
+
+    static async getThesisByProcedureId(id: number): Promise<CustomResponse<ProcedureDTO>> {
+        try {
+            // console.log("Datos recibidos:", data);
+            if (!id)
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "ID del trámite no proporcionado.", 400);
+
+            const procedureDTO: ProcedureDTO | null = await ProcedureDAO.getProcedureCompleteById(id);
+            console.log("procedure: ", procedureDTO)
+            if (!procedureDTO) {
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Trámite no encontrado.", 404);
+            }
+
+            // const thesisDTO: ThesisDTO | null = await ConstancyThesisDAO.getConstancyThesis();
+            // if (!thesisDTO) {
+            //     return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Trámite no encontrado.", 404);
+            // }
+
+
+
+            return new CustomResponse<ProcedureDTO>(procedureDTO, ResultType.OK, "trámites o exitosamente.", 200);
+
+        } catch (error) {
+            if (error instanceof Error)
+                console.error(error);
+            throw new Error("Error desconocido al obtener el trámite");
+        }
+    }
 
     static async getAllProcedures(): Promise<CustomResponse<ProcedureDTO[]>> {
         try {
             const professors: ProcedureDTO[] = await ProcedureDAO.getAllProcedures();
 
             if (professors.length == 0)
-                return new CustomResponse(professors, ResultType.WARNING, "Aun no se han registrado professores", 204)
+                return new CustomResponse(professors, ResultType.WARNING, "Aun no se han registrado trámites", 204)
 
-            return new CustomResponse(professors, ResultType.OK, "Profesores obtenidos exitosamente", 200)
+            return new CustomResponse(professors, ResultType.OK, "Trámites obtenidos exitosamente", 200)
 
         } catch (error) {
             if (error instanceof Error)
                 console.error(error);
-            throw new Error("Error desconocido al obtener los profesores");
+            throw new Error("Error desconocido al obtener los trámites");
         }
     }
 
@@ -36,11 +65,11 @@ export class ProcedureService {
 
             //TODO: Validaciones para ver si ya existe tramite (codigo, ver si el profesor ya tiene un tramite en proceso, profesor con mismos atributos de solicitud) 
 
-            const thesis: ThesisDTO[] = await ThesisDAO.getConstancyThesis(data.amount ?? 20, data.professor.id, data.registerTypes?.map(x => x.id) ?? [], data.charges ? data.charges.map(x => x.id) : [], data.endDate, data.startDate);
+            const thesis: ThesisDTO[] = await ThesisDAO.getThesisForConstancy(data.amount ?? 20, data.professor.id, data.registerTypes?.map(x => x.id) ?? [], data.charges ? data.charges.map(x => x.id) : [], data.startDate, data.endDate);
             console.log("TESIIIIISES: ", thesis)
 
             if (thesis.length === 0) {
-                throw new Error("No se encontraron tesis que cumplan con las condiciones especificadas.");
+                return new CustomResponse<number>(null, ResultType.WARNING, "No se encontraron tesis que cumplan con las condiciones especificadas", 404);
             }
 
             //INERTAR PROCEDURE
@@ -77,7 +106,7 @@ export class ProcedureService {
             const constancyTheses = await ConstancyThesisDAO.createConstancyThesis(constancyThesisReqs);
             console.log("constancyTheses: ", constancyTheses);
 
-            return new CustomResponse<number>(data.id, ResultType.OK, "Profesor registrado exitosamente.", 201);
+            return new CustomResponse<number>(newProcedure.id, ResultType.OK, "Trámite registrado exitosamente.", 201);
 
         } catch (error) {
             if (error instanceof Error)
@@ -86,27 +115,26 @@ export class ProcedureService {
         }
     }
 
-    static async updateProcedure(data: ProcedureDTO): Promise<CustomResponse<boolean>> {
+    static async updateProcedure(data: ProcedureReq): Promise<CustomResponse<ProcedureDTO>> {
         try {
             // console.log("Datos recibidos:", data);
             if (!data.state)
-                return new CustomResponse<boolean>(null, ResultType.WARNING, " para actualizar el trámite.", 400);
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, " para actualizar el trámite.", 400);
 
             if (!data.id)
-                return new CustomResponse<boolean>(null, ResultType.WARNING, "ID del trámite no proporcionado.", 400);
-
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "ID del trámite no proporcionado.", 400);
 
             //TODO: VERIFICAR USUARIO EXISTENTE PERTENECE AL PROFESSOR
             const existingProcedure = await ProcedureDAO.getProcedureById(data.id);
             console.log("existingProcedure: ", existingProcedure)
             if (!existingProcedure) {
-                return new CustomResponse<boolean>(null, ResultType.WARNING, "Trámite no encontrado.", 404);
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Trámite no encontrado.", 404);
             }
 
-            // if (!updatedProfessor)
-            //     return new CustomResponse<boolean>(null, ResultType.ERROR, "Profesor no actualizado.", 404);
+            const updatedProcedure: ProcedureDTO = await ProcedureDAO.updateProcedure(data);
+            console.log("updatedProcedure: ", updatedProcedure)
 
-            return new CustomResponse<boolean>(true, ResultType.OK, "Profesor actualizado exitosamente.", 200);
+            return new CustomResponse<ProcedureDTO>(updatedProcedure, ResultType.OK, "Profesor actualizado exitosamente.", 200);
 
         } catch (error) {
             if (error instanceof Error)
