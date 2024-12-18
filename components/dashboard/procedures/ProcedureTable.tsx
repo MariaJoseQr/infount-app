@@ -19,6 +19,7 @@ import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { format } from "date-fns";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import ConstancyPDF from "./ConstancyPDF";
+import { ConstancyDownloadDialog } from "./ConstancyPdfDialog";
 
 interface TableDemoProps {
   filter?: string;
@@ -31,6 +32,7 @@ export function ProcedureTable({ filter }: TableDemoProps) {
   const [procedureSelected, setSelectedProfessor] = useState<ProcedureDTO>();
   const [showModalEdit, setShowModalEdit] = useState(false);
   const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
+  const [procedureDownloadDialogOpen, setProcedureDownloadDialogOpen] = useState(false);
 
   useEffect(() => {
     const fetchProcedures = async () => {
@@ -50,6 +52,15 @@ export function ProcedureTable({ filter }: TableDemoProps) {
     };
     fetchProcedures();
   }, []);
+
+  const openDownloadModal = (professorIdEdit: string) => {
+    const procedure = data.find(
+      (procedure) => procedure.id?.toString() === professorIdEdit
+    );
+
+    setSelectedProfessor(procedure);
+    setProcedureDownloadDialogOpen(true);
+  };
 
   const openEditModal = (professorIdEdit: string) => {
     const procedure = data.find(
@@ -120,7 +131,7 @@ export function ProcedureTable({ filter }: TableDemoProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-4">
-                      <PDFDownloadLink
+                      {/* <PDFDownloadLink
                         document={<ConstancyPDF data={data} />}
                         fileName="procedures.pdf"
                         children={
@@ -129,8 +140,13 @@ export function ProcedureTable({ filter }: TableDemoProps) {
                             size={18}
                           />
                         }
-                      ></PDFDownloadLink>
+                      ></PDFDownloadLink> */}
 
+                      <DownloadIcon
+                        className="cursor-pointer text-primary"
+                        size={18}
+                        onClick={() => openDownloadModal(procedure.id!.toString())}
+                      />
                       <Pencil
                         className="cursor-pointer text-primary"
                         size={18}
@@ -150,6 +166,11 @@ export function ProcedureTable({ filter }: TableDemoProps) {
           </TableBody>
         </Table>
       </div>
+      <ConstancyDownloadDialog
+        isOpen={procedureDownloadDialogOpen}
+        setIsOpen={setProcedureDownloadDialogOpen}
+      // record={selectedThesis!}
+      />
 
       <ProcedureAddDialog
         isOpen={procedureAddDialogOpen}
