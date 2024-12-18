@@ -9,6 +9,12 @@ import { ProcedureDAO } from "../dao/procedureDAO";
 import { ConstancyDAO } from "../dao/constancyDAO";
 import { ConstancyThesisDAO } from "../dao/constancyThesisDAO";
 import { ProcedureReq } from "@/app/beans/request/procedureReq";
+import { ProfessorThesisDAO } from "../dao/professorThesisDAO";
+import { ProfessorThesisDTO } from "@/app/beans/dto/professorsThesisDTO";
+import { ConstancyDTO } from "@/app/beans/dto/constancyDTO";
+import { ConstancyThesisDTO } from "@/app/beans/dto/constancyThesisDTO";
+import { ThesisConstancyRes } from "@/app/beans/response/constancyThesisRes";
+import { ChargeDTO } from "@/app/beans/dto/chargeDTO";
 // import { ProcedureDAO } from "../dao/procedureDAO";
 // import { ConstancyDAO } from "../dao/constancyDAO";
 
@@ -22,16 +28,46 @@ export class ProcedureService {
 
             const procedureDTO: ProcedureDTO | null = await ProcedureDAO.getProcedureCompleteById(id);
             console.log("procedure: ", procedureDTO)
-            if (!procedureDTO) {
+            if (!procedureDTO || !procedureDTO.id) {
                 return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Trámite no encontrado.", 404);
             }
 
-            // const thesisDTO: ThesisDTO | null = await ConstancyThesisDAO.getConstancyThesis();
-            // if (!thesisDTO) {
-            //     return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Trámite no encontrado.", 404);
-            // }
+            const constancyDTO: ConstancyDTO | null = await ConstancyDAO.getConstancyByProcedureId(procedureDTO.id);
+            console.log("constancyDTO: ", constancyDTO)
+            if (!constancyDTO || !constancyDTO.id) {
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Constancia no encontrada.", 404);
+            }
+
+            const constancyThesisDTO: ConstancyThesisDTO[] = await ConstancyThesisDAO.getConstancyThesis(constancyDTO.id);
+            console.log("constancyThesisDTO: ", constancyThesisDTO)
+            if (!constancyThesisDTO || constancyThesisDTO.length == 0) {
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "La constancia no tiene tesis asociadas.", 404);
+            }
+            const thesisDTO: ThesisDTO[] = constancyThesisDTO.map(x => x.thesis).filter((thesis): thesis is ThesisDTO => thesis !== undefined);
+            console.log("thesisDTO: ", thesisDTO)
+            if (!thesisDTO || thesisDTO.length == 0) {
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "La constancia no tiene tesis asociadas.", 404);
+            }
+
+            const thesisIds: number[] = thesisDTO.map((ct) => ct.id);
+
+            const professorThesis: ProfessorThesisDTO[] = await ProfessorThesisDAO.getChargesByProfessorThesisIds(procedureDTO.professor?.id, thesisIds);
+            console.log("professorThesis: ", professorThesis)
+
+            const thesisConstancyRes: ThesisConstancyRes[] = thesisDTO.map(thesis => {
+                const relatedCharge = professorThesis.find(pt => pt.thesisId === thesis.id)?.charge;
+
+                return {
+                    ...thesis, // Include all properties from ThesisDTO
+                    charge: relatedCharge as ChargeDTO // Add the charge field, ensuring it's defined
+                };
+            });
+            console.log("thesisConstancyRes: ", thesisConstancyRes);
+
+            constancyDTO.thesis = thesisConstancyRes;
 
 
+            procedureDTO.constancy = constancyDTO;
 
             return new CustomResponse<ProcedureDTO>(procedureDTO, ResultType.OK, "trámites o exitosamente.", 200);
 

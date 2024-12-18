@@ -7,13 +7,14 @@ import { Prisma, Procedure } from "@prisma/client";
 export class ProcedureDAO {
 
     static async getProcedureById(id: number): Promise<Procedure | null> {
-        return await db.procedure.findUnique({
+        const procedure = await db.procedure.findFirst({
             where: { id, isDeleted: false },
         });
+        return procedure;
     }
 
     static async getProcedureCompleteById(id: number): Promise<ProcedureDTO | null> {
-        const procedureModel = await db.procedure.findUnique({
+        const procedureModel = await db.procedure.findFirst({
             where: { id, isDeleted: false },
             include: {
                 professor: {
@@ -26,11 +27,6 @@ export class ProcedureDAO {
                 },
                 state: {
                     select: { id: true, name: true }
-                },
-                constancy: {
-                    select: {
-                        fileNumber: true, registrationNumber: true
-                    }
                 }
             }
         });
@@ -38,7 +34,7 @@ export class ProcedureDAO {
         if (!procedureModel) {
             return null;
         }
-
+        console.log("procedureModel: ", procedureModel)
         const procedureDTO: ProcedureDTO = {
             id: procedureModel.id,
             registerTypes: procedureModel.thesisTypeIds?.split(',').map(id => ({ id: parseInt(id) })),
@@ -48,7 +44,8 @@ export class ProcedureDAO {
             endDate: procedureModel.endDate ?? undefined,
             state: procedureModel.state,
             charges: procedureModel.chargeIds?.split(',').map(id => ({ id: parseInt(id) })),
-            constancy: procedureModel.constancy ?? undefined
+            // constancy: procedureModel.constancy ?? undefined,
+            createdAt: procedureModel.createdAt
         }
 
         return procedureDTO;
@@ -119,6 +116,7 @@ export class ProcedureDAO {
             endDate: procedureUpdated.endDate ?? undefined,
             state: procedureUpdated.state,
             charges: procedureUpdated.chargeIds?.split(',').map(id => ({ id: parseInt(id) })),
+            createdAt: procedureUpdated.createdAt
         }
 
         return procedureDTO;
