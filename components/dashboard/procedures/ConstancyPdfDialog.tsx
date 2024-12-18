@@ -13,22 +13,28 @@ import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
 import { CustomResponse } from "@/app/beans/customResponse";
 import BarLoader from "react-spinners/BarLoader";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import { DialogHeader } from "@/components/ui/dialog";
+import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
 
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf'
+import { Button } from "@/components/ui/button";
+import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
+import { ThesisConstancyRes } from "@/app/beans/response/constancyThesisRes";
+
 
 export function ConstancyDownloadDialog({
   isOpen,
   setIsOpen,
-  // procedure
+  procedure
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  // procedure: ProcedureDTO; 
+  procedure: ProcedureDTO;
 }) {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<ThesisDTO[]>([]);
+  // const [data, setData] = useState<ThesisDTO[]>([]);
+  const [procedureConstancy, setData] = useState<ProcedureDTO>();
+
   const pdfRef = useRef();
   const downloadPDF = () => {
     const input = pdfRef.current;
@@ -48,23 +54,26 @@ export function ConstancyDownloadDialog({
   }
 
   useEffect(() => {
-    const fetchTheses = async () => {
-      setLoading(true);
+    if (isOpen) {
+      const fetchTheses = async () => {
+        setLoading(true);
+        console.log("Procedure To download: ", procedure);
 
-      try {
-        const response = await axios.get<CustomResponse<ThesisDTO[]>>(
-          "/api/thesis"
-        );
+        try {
+          const response = await axios.get<CustomResponse<ProcedureDTO>>(
+            "/api/procedures/" + procedure.id
+          );
 
-        setData(response.data.result || []);
-      } catch (error) {
-        console.error("Error fetching theses:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTheses();
-  }, []);
+          setData(response.data.result!);
+        } catch (error) {
+          console.error("Error fetching theses:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchTheses();
+    }
+  }, [isOpen, procedure]);
 
 
 
@@ -85,8 +94,11 @@ export function ConstancyDownloadDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <button className="btn btn-primary" onClick={downloadPDF}>Exportar PDF</button>
+        {/* <button className="btn btn-primary" onClick={downloadPDF}>Exportar PDF</button> */}
         <div ref={pdfRef} className="max-h-full">
+          {"Docente: " + procedureConstancy?.professor.user?.name}
+          {"File Number : " + procedureConstancy?.constancy?.fileNumber}
+          {"Registration number : " + procedureConstancy?.constancy?.registrationNumber}
 
           <Table>
             <TableHeader>
@@ -106,11 +118,12 @@ export function ConstancyDownloadDialog({
                   </TableCell>
                 </TableRow>
               ) : (
-                data.map((thesis) => (
+                procedureConstancy?.constancy?.thesis!.map((thesis) => (
                   <TableRow key={thesis.name}>
                     <TableCell>{thesis.resolutionCode}</TableCell>
                     <TableCell>{thesis.name}</TableCell>
                     <TableCell>{thesis.type?.name}</TableCell>
+                    <TableCell>{thesis.charge.name}</TableCell>
 
                   </TableRow>
                 ))
@@ -119,6 +132,11 @@ export function ConstancyDownloadDialog({
 
           </Table>
         </div>
+        <DialogFooter className="mt-4">
+          <Button onClick={downloadPDF}>
+            {"Exportar pdf"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
 

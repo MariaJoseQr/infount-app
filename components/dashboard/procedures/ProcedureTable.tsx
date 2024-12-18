@@ -29,10 +29,10 @@ export function ProcedureTable({ filter }: TableDemoProps) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ProcedureDTO[] | []>([]);
   const [showModal, setShowModal] = useState(false);
-  const [procedureSelected, setSelectedProfessor] = useState<ProcedureDTO>();
+  const [selectedProcedure, setSelectedProcedure] = useState<ProcedureDTO>();
   const [showModalEdit, setShowModalEdit] = useState(false);
   const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
-  const [procedureDownloadDialogOpen, setProcedureDownloadDialogOpen] = useState(false);
+  const [showDownloadModal, setShowDonloadModal] = useState(false);
 
   useEffect(() => {
     const fetchProcedures = async () => {
@@ -53,21 +53,21 @@ export function ProcedureTable({ filter }: TableDemoProps) {
     fetchProcedures();
   }, []);
 
-  const openDownloadModal = (professorIdEdit: string) => {
+  const openDownloadModal = (procedureId: string) => {
     const procedure = data.find(
-      (procedure) => procedure.id?.toString() === professorIdEdit
+      (procedure) => procedure.id?.toString() === procedureId
     );
 
-    setSelectedProfessor(procedure);
-    setProcedureDownloadDialogOpen(true);
+    setSelectedProcedure(procedure);
+    setShowDonloadModal(true);
   };
 
-  const openEditModal = (professorIdEdit: string) => {
+  const openEditModal = (procedureId: string) => {
     const procedure = data.find(
-      (procedure) => procedure.id?.toString() === professorIdEdit
+      (procedure) => procedure.id?.toString() === procedureId
     );
 
-    setSelectedProfessor(procedure);
+    setSelectedProcedure(procedure);
     setShowModalEdit(true);
   };
 
@@ -76,20 +76,20 @@ export function ProcedureTable({ filter }: TableDemoProps) {
       (procedure) => procedure.id?.toString() === thesisId
     );
 
-    setSelectedProfessor(procedure);
+    setSelectedProcedure(procedure);
     setShowModal(true);
   };
 
   const handleDelete = async () => {
-    if (procedureSelected) {
+    if (selectedProcedure) {
       try {
-        await axios.put(`/api/professors/${procedureSelected.id}`);
+        await axios.put(`/api/professors/${selectedProcedure.id}`);
 
         setData(
-          data.filter((procedure) => procedure.id !== procedureSelected.id)
+          data.filter((procedure) => procedure.id !== selectedProcedure.id)
         );
         setShowModal(false);
-        setSelectedProfessor(undefined);
+        setSelectedProcedure(undefined);
       } catch (error) {
         console.error("Error deleting procedure:", error);
       }
@@ -166,16 +166,17 @@ export function ProcedureTable({ filter }: TableDemoProps) {
           </TableBody>
         </Table>
       </div>
+
       <ConstancyDownloadDialog
-        isOpen={procedureDownloadDialogOpen}
-        setIsOpen={setProcedureDownloadDialogOpen}
-      // record={selectedThesis!}
+        isOpen={showDownloadModal}
+        setIsOpen={setShowDonloadModal}
+        procedure={selectedProcedure!}
       />
 
       <ProcedureAddDialog
         isOpen={procedureAddDialogOpen}
         setIsOpen={setProcedureAddDialogOpen}
-        procedure={procedureSelected}
+        procedure={selectedProcedure}
       />
       <ProcedureDeleteDialog
         isOpen={showModal}
