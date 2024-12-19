@@ -18,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
 } from "@/components/ui/dialog";
-import Image from "next/image";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Button } from "@/components/ui/button";
@@ -143,7 +142,7 @@ export function ConstancyDownloadDialog({
                 <div className="border-t-2 border-black w-full my-6 mx-auto"></div>
 
                 <p className="text-xs font-serif italic my-4">
-                  "Dos siglos de sabiduría, un legado para el futuro"
+                  &quot;Dos siglos de sabiduría, un legado para el futuro&quot;
                 </p>
                 <p className="text-xs font-sans font-semibold underline underline-offset-2">
                   CONSTANCIA DE ASESORÍA Y/O EVALUACIÓN DE TRABAJOS DE
