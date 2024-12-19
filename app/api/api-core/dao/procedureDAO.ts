@@ -19,7 +19,7 @@ export class ProcedureDAO {
             include: {
                 professor: {
                     select: {
-                        id: true, grade: { select: { id: true, abbreviation: true } },
+                        id: true, code: true, grade: { select: { id: true, abbreviation: true } },
                         user: {
                             select: { id: true, name: true }
                         }

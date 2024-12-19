@@ -2,24 +2,21 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { ThesisDTO } from "@/app/beans/dto/thesisDTO";
-import { CustomResponse } from "@/app/beans/customResponse";
+import { CustomResponse, ResultType } from "@/app/beans/customResponse";
 import BarLoader from "react-spinners/BarLoader";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import { DialogFooter, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogFooter, DialogHeader } from "@/components/ui/dialog";
 
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf'
 import { Button } from "@/components/ui/button";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
-import { ThesisConstancyRes } from "@/app/beans/response/constancyThesisRes";
+import { ProcedureReq } from "@/app/beans/request/procedureReq";
 
 
 export function ConstancyDownloadDialog({
@@ -38,27 +35,62 @@ export function ConstancyDownloadDialog({
   const pdfRef = useRef();
   const downloadPDF = () => {
     const input = pdfRef.current;
-    html2canvas(input).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4', true);
+
+    if (!input) return;
+
+    html2canvas(input, {
+      scale: 3,
+      useCORS: true,
+      logging: false,
+    }).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF("p", "mm", "a4");
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
+
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
+
       const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const imgX = (pdfWidth - imgWidth * ratio) / 2;
-      const imgY = 30;
-      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-      pdf.save('invoice.pdf');
+
+      const scaledWidth = imgWidth * ratio;
+      const scaledHeight = imgHeight * ratio;
+
+      const imgX = (pdfWidth - scaledWidth) / 2;
+      const imgY = 10;
+
+      pdf.addImage(imgData, "PNG", imgX, imgY, scaledWidth, scaledHeight);
+
+      pdf.save("document.pdf");
+
+      if (procedure.state?.id == 1) {
+        const req: ProcedureReq = {
+          id: procedure.id!,
+          state: { "id": 3 }
+        };
+        axios
+          .put("/api/procedures", req)
+          .then((response) => {
+            if (response.data.resultType == ResultType.OK)
+              console.log("ACTUALIZACION EXITOSA");
+            else {
+              console.log("ERROR/ADVERTENCIA AL ACTUALIZAR");
+            }
+          })
+          .catch((error) =>
+            console.error("Error obteniendo al actualizar tesis:", error)
+          );
+      }
+
     });
-  }
+  };
+
 
   useEffect(() => {
     if (isOpen) {
       const fetchTheses = async () => {
         setLoading(true);
-        console.log("Procedure To download: ", procedure);
-
         try {
           const response = await axios.get<CustomResponse<ProcedureDTO>>(
             "/api/procedures/" + procedure.id
@@ -74,9 +106,6 @@ export function ConstancyDownloadDialog({
       fetchTheses();
     }
   }, [isOpen, procedure]);
-
-
-
 
   return (
 
@@ -106,6 +135,7 @@ export function ConstancyDownloadDialog({
                 <TableHead>Número de Resolución</TableHead>
                 <TableHead>Nombre de la Tesis</TableHead>
                 <TableHead>Tipo</TableHead>
+                <TableHead>Cargo</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
