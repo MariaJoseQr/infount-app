@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,261 +8,218 @@ datasource db {
 }
 
 model School {
-  id     Int    @id @default(autoincrement())
-  name   String
-
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  // School puede aparecer una o más veces en User
-  users  User[]
+  id             Int       @id @default(autoincrement())
+  name           String
+  isDeleted      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  creationUserId Int?
+  updatedAt      DateTime? @updatedAt
+  updateUserId   Int?
+  users          User[]
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  username      String    @unique
-  password      String
-  name          String
-  email         String    @unique
-  cellphone     String
+  id             Int        @id @default(autoincrement())
+  username       String     @unique
+  password       String
+  name           String
+  email          String     @unique
+  cellphone      String
+  isDeleted      Boolean    @default(false)
+  createdAt      DateTime   @default(now())
+  creationUserId Int?
+  updatedAt      DateTime?  @updatedAt
+  updateUserId   Int?
+  schoolId       Int
+  professor      Professor?
+  secretary      Secretary?
+  school         School     @relation(fields: [schoolId], references: [id])
 
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  // FK hacía School
-  schoolId      Int      
-  school        School    @relation(fields: [schoolId], references: [id])
-
-  // Relaciones 1 a 1
-  secretary     Secretary?
-  professor     Professor?
+  @@index([schoolId], map: "User_schoolId_fkey")
 }
 
 model Secretary {
-  id       Int    @id @default(autoincrement())
-  code     String @unique
-
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  // Relación 1 a 1 con User
-  userId   Int    @unique
-  user     User   @relation(fields: [userId], references: [id])
+  id             Int       @id @default(autoincrement())
+  code           String    @unique
+  isDeleted      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  creationUserId Int?
+  updatedAt      DateTime? @updatedAt
+  updateUserId   Int?
+  userId         Int       @unique
+  user           User      @relation(fields: [userId], references: [id])
 }
 
 model Professor {
-  id       Int     @id @default(autoincrement())
-  code     String  @unique
+  id             Int              @id @default(autoincrement())
+  code           String           @unique
+  isDeleted      Boolean          @default(false)
+  createdAt      DateTime         @default(now())
+  creationUserId Int?
+  updatedAt      DateTime?        @updatedAt
+  updateUserId   Int?
+  gradeId        Int
+  userId         Int              @unique
+  constancies    Constancy[]
+  procedures     Procedure[]
+  grade          Grade            @relation(fields: [gradeId], references: [id])
+  user           User             @relation(fields: [userId], references: [id])
+  theses         ProfessorTesis[]
 
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  // FK hacia Grade
-  gradeId  Int     
-  grade    Grade   @relation(fields: [gradeId], references: [id])
-
-  // El Profesor puede aparecer una o más veces en las tablas ProfessorTesis, Procedure, Constancy
-  theses   ProfessorTesis[] 
-  procedures Procedure[]
-  constancies Constancy[]
-  
-  // Relación 1 a 1 con User
-  userId    Int    @unique 
-  user      User   @relation(fields: [userId], references: [id]) // Relación inversa
+  @@index([gradeId], map: "Professor_gradeId_fkey")
 }
 
 model Grade {
-  id          Int        @id @default(autoincrement())
-  name        String
-  abbreviation String
-
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  // 1 : N -> El grado puede aparecer en uno o más Profesores
-  professors  Professor[]
+  id             Int         @id @default(autoincrement())
+  name           String
+  abbreviation   String
+  isDeleted      Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  creationUserId Int?
+  updatedAt      DateTime?   @updatedAt
+  updateUserId   Int?
+  professors     Professor[]
 }
 
 model Thesis {
-  id                Int     @id @default(autoincrement())
+  id                Int               @id @default(autoincrement())
   name              String
   resolutionCode    String
   date              DateTime?
   firstStudentName  String
   secondStudentName String
-
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
+  isDeleted         Boolean           @default(false)
+  createdAt         DateTime          @default(now())
   creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
+  updatedAt         DateTime?         @updatedAt
   updateUserId      Int?
+  typeId            Int
+  constancyThesis   ConstancyThesis[]
+  professorsThesis  ProfessorTesis[]
+  type              ThesisType        @relation(fields: [typeId], references: [id])
 
-  // FK hacia ThesisType
-  typeId            Int     
-  type              ThesisType @relation(fields: [typeId], references: [id])
-
-  professorsThesis  ProfessorTesis[] // Relación con Professor a través de ProfessorTesis
-  
-  constancyThesis   ConstancyThesis[] // Relación con Constancy a través de ConstancyThesis
+  @@index([typeId], map: "Thesis_typeId_fkey")
 }
 
-// Tabla intermedia
 model ProfessorTesis {
-  id        Int     @id @default(autoincrement())
-  professorId Int
-  thesisId    Int
-  chargeId    Int
+  id             Int       @id @default(autoincrement())
+  professorId    Int
+  thesisId       Int
+  chargeId       Int
+  isDeleted      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  creationUserId Int?
+  updatedAt      DateTime? @updatedAt
+  updateUserId   Int?
+  charge         Charge    @relation(fields: [chargeId], references: [id])
+  professor      Professor @relation(fields: [professorId], references: [id])
+  thesis         Thesis    @relation(fields: [thesisId], references: [id])
 
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  charge      Charge   @relation(fields: [chargeId], references: [id])
-  professor   Professor @relation(fields: [professorId], references: [id])
-  thesis      Thesis    @relation(fields: [thesisId], references: [id])
+  @@index([chargeId], map: "ProfessorTesis_chargeId_fkey")
+  @@index([professorId], map: "ProfessorTesis_professorId_fkey")
+  @@index([thesisId], map: "ProfessorTesis_thesisId_fkey")
 }
 
 model Charge {
-  id       Int        @id @default(autoincrement())
-  name     String
-
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  professorsThesis ProfessorTesis[] // Relación 1 a muchos con ProfessorTesis
+  id               Int              @id @default(autoincrement())
+  name             String
+  isDeleted        Boolean          @default(false)
+  createdAt        DateTime         @default(now())
+  creationUserId   Int?
+  updatedAt        DateTime?        @updatedAt
+  updateUserId     Int?
+  professorsThesis ProfessorTesis[]
 }
 
 model ThesisType {
-  id          Int      @id @default(autoincrement())
-  name        String @unique
-
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  theses      Thesis[] // Relación 1 a muchos con Thesis
-  //procedures  Procedure[] // Relación 1 a muchos con Procedure
+  id             Int       @id @default(autoincrement())
+  name           String    @unique
+  isDeleted      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  creationUserId Int?
+  updatedAt      DateTime? @updatedAt
+  updateUserId   Int?
+  theses         Thesis[]
 }
 
 model Procedure {
-  id              Int        @id @default(autoincrement())
-  startDate       DateTime?  // Nuevo campo para la fecha de inicio
-  endDate         DateTime?
-  amount          Int        // Renombrado desde thesisAmount
+  id             Int           @id @default(autoincrement())
+  endDate        DateTime?
+  isDeleted      Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  creationUserId Int?
+  updatedAt      DateTime?     @updatedAt
+  updateUserId   Int?
+  professorId    Int
+  typeId         Int
+  stateId        Int
+  constancyId    Int?          @unique
+  amount         Int
+  chargeIds      String?
+  startDate      DateTime?
+  thesisTypeIds  String?
+  constancy      Constancy?    @relation(fields: [constancyId], references: [id])
+  professor      Professor     @relation(fields: [professorId], references: [id])
+  state          State         @relation(fields: [stateId], references: [id])
+  type           ProcedureType @relation(fields: [typeId], references: [id])
 
-  thesisTypeIds   String?     // Almacena los IDs de tipos de tesis como una cadena delimitada por comas
-  chargeIds       String?     // Almacena los IDs de cargos como una cadena delimitada por comas
-
-  // Campos de auditoría
-  isDeleted       Boolean    @default(false)
-  createdAt       DateTime   @default(now())
-  creationUserId  Int?
-  updatedAt       DateTime?  @updatedAt
-  updateUserId    Int?
-
-  professorId     Int        // FK hacia Professor
-  professor       Professor  @relation(fields: [professorId], references: [id])
-  typeId          Int        // FK hacia ProcedureType
-  type            ProcedureType @relation(fields: [typeId], references: [id])
-  stateId         Int        // FK hacia State
-  state           State      @relation(fields: [stateId], references: [id])
-  constancyId     Int?       @unique // FK hacia Constancy, debe ser único para relación 1 a 1
-  constancy       Constancy? @relation(fields: [constancyId], references: [id])
+  @@index([professorId], map: "Procedure_professorId_fkey")
+  @@index([stateId], map: "Procedure_stateId_fkey")
+  @@index([typeId], map: "Procedure_typeId_fkey")
 }
 
 model ProcedureType {
-  id          Int        @id @default(autoincrement())
-  name        String
-
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  procedures  Procedure[] // Relación 1 a muchos con Procedure
+  id             Int         @id @default(autoincrement())
+  name           String
+  isDeleted      Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  creationUserId Int?
+  updatedAt      DateTime?   @updatedAt
+  updateUserId   Int?
+  procedures     Procedure[]
 }
 
 model State {
-  id          Int        @id @default(autoincrement())
-  name        String
-
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  procedures  Procedure[] // Relación 1 a muchos con Procedure
+  id             Int         @id @default(autoincrement())
+  name           String
+  isDeleted      Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+  creationUserId Int?
+  updatedAt      DateTime?   @updatedAt
+  updateUserId   Int?
+  procedures     Procedure[]
 }
 
 model Constancy {
-  id                Int       @id @default(autoincrement())
-  registrationNumber String    @unique
-  fileNumber        String
-  date              DateTime
+  id                 Int               @id @default(autoincrement())
+  registrationNumber String            @unique
+  fileNumber         String
+  date               DateTime
+  isDeleted          Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+  creationUserId     Int?
+  updatedAt          DateTime?         @updatedAt
+  updateUserId       Int?
+  professorId        Int
+  procedureId        Int?
+  professor          Professor         @relation(fields: [professorId], references: [id])
+  constancyThesis    ConstancyThesis[]
+  procedure          Procedure?
 
-  // Campos de auditoría
-  isDeleted         Boolean   @default(false)
-  createdAt         DateTime  @default(now())
-  creationUserId    Int?
-  updatedAt         DateTime? @updatedAt
-  updateUserId      Int?
-
-  professorId       Int       // FK hacia Professor
-  professor         Professor  @relation(fields: [professorId], references: [id])
-  procedureId       Int?      // FK hacia Procedure, puede ser nulo
-  procedure         Procedure? // Relación 1 a 1 con Procedure
-
-  // Relación con Thesis a través de ConstancyThesis
-  constancyThesis   ConstancyThesis[]
+  @@index([professorId], map: "Constancy_professorId_fkey")
 }
 
 model ConstancyThesis {
-  constancy     Constancy @relation(fields: [constancyId], references: [id])
-  constancyId   Int
-  thesis        Thesis    @relation(fields: [thesisId], references: [id])
-  thesisId      Int
-
-  // Campos de auditoría
-  isDeleted     Boolean   @default(false)
-  createdAt     DateTime  @default(now())
+  constancyId    Int
+  thesisId       Int
+  isDeleted      Boolean   @default(false)
+  createdAt      DateTime  @default(now())
   creationUserId Int?
-  updatedAt     DateTime? @updatedAt
-  updateUserId  Int?
+  updatedAt      DateTime? @updatedAt
+  updateUserId   Int?
+  constancy      Constancy @relation(fields: [constancyId], references: [id])
+  thesis         Thesis    @relation(fields: [thesisId], references: [id])
 
-  @@id([constancyId, thesisId]) // Clave primaria compuesta
+  @@id([constancyId, thesisId])
+  @@index([thesisId], map: "ConstancyThesis_thesisId_fkey")
 }
