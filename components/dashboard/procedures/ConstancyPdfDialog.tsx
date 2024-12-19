@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
 import { ProcedureReq } from "@/app/beans/request/procedureReq";
 import { format } from "date-fns";
+import emailjs from "@emailjs/browser"
 
 export function ConstancyDownloadDialog({
   isOpen,
@@ -79,9 +80,37 @@ export function ConstancyDownloadDialog({
         axios
           .put("/api/procedures", req)
           .then((response) => {
-            if (response.data.resultType == ResultType.OK)
-              console.log("ACTUALIZACION EXITOSA");
-            else {
+            if (response.data.resultType === ResultType.OK) {
+              console.log("ACTUALIZACIÓN EXITOSA");
+
+              // Configuración del correo electrónico
+              const email = "t512700420@unitru.edu.pe"; // El correo de destino
+              const templateParams = {
+                to_name: procedure.professor.user?.name ?? "Yenny Sifuentes",
+                state: "Descargado",
+                to_email: email,
+              };
+
+              // Validar las variables de entorno
+              const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "";
+              const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? "";
+              const userId = process.env.NEXT_PUBLIC_EMAILJS_USER_ID ?? "";
+
+              if (!serviceId || !templateId || !userId) {
+                console.error("Faltan configuraciones en las variables de entorno.");
+                return;
+              }
+
+              // Enviar correo usando EmailJS
+              emailjs
+                .send(serviceId, templateId, templateParams, userId)
+                .then((result) => {
+                  console.log("Correo enviado exitosamente:", result.text);
+                })
+                .catch((error) => {
+                  console.error("Error al enviar el correo:", error);
+                });
+            } else {
               console.log("ERROR/ADVERTENCIA AL ACTUALIZAR");
             }
           })
