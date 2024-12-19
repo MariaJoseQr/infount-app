@@ -128,21 +128,12 @@ export function ProcedureTable({ filter }: TableDemoProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-4">
-                      {/* <PDFDownloadLink
-                        document={<ConstancyPDF data={data} />}
-                        fileName="procedures.pdf"
-                        children={
-                          <DownloadIcon
-                            className="cursor-pointer text-primary"
-                            size={18}
-                          />
-                        }
-                      ></PDFDownloadLink> */}
-
                       <DownloadIcon
                         className="cursor-pointer text-primary"
                         size={18}
-                        onClick={() => openDownloadModal(procedure.id!.toString())}
+                        onClick={() =>
+                          openDownloadModal(procedure.id!.toString())
+                        }
                       />
                       <Pencil
                         className="cursor-pointer text-primary"
@@ -169,7 +160,6 @@ export function ProcedureTable({ filter }: TableDemoProps) {
         setIsOpen={setShowDonloadModal}
         procedure={selectedProcedure!}
       />
-
       <ProcedureAddDialog
         isOpen={procedureAddDialogOpen}
         setIsOpen={setProcedureAddDialogOpen}
