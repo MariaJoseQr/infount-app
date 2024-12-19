@@ -94,10 +94,10 @@ export class ProcedureService {
         }
     }
 
-    static async createProcedure(data: ProcedureDTO): Promise<CustomResponse<number>> {
+    static async createProcedure(data: ProcedureDTO): Promise<CustomResponse<ProcedureDTO>> {
         try {
             if (data.registerTypes?.length === 0 || !data.professor || !data.constancy?.fileNumber || !data.constancy?.registrationNumber)
-                return new CustomResponse<number>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar el trámite.", 400);
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar el trámite.", 400);
 
             //TODO: Validaciones para ver si ya existe tramite (codigo, ver si el profesor ya tiene un tramite en proceso, profesor con mismos atributos de solicitud) 
 
@@ -105,7 +105,7 @@ export class ProcedureService {
             console.log("TESIIIIISES: ", thesis)
 
             if (thesis.length === 0) {
-                return new CustomResponse<number>(null, ResultType.WARNING, "No se encontraron tesis que cumplan con las condiciones especificadas", 404);
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "No se encontraron tesis que cumplan con las condiciones especificadas", 404);
             }
 
             //INERTAR PROCEDURE
@@ -119,7 +119,7 @@ export class ProcedureService {
                 endDate: data.endDate ? new Date(data.endDate) : null,
                 chargeIds: data.charges?.map(item => item.id).join(",") || null,
             };
-            const newProcedure = await ProcedureDAO.createProcedure(procedureReq);
+            const newProcedure: ProcedureDTO = await ProcedureDAO.createProcedure(procedureReq);
             console.log("newProcedure: ", newProcedure);
 
             //INERTAR CONSTANCY
@@ -142,7 +142,9 @@ export class ProcedureService {
             const constancyTheses = await ConstancyThesisDAO.createConstancyThesis(constancyThesisReqs);
             console.log("constancyTheses: ", constancyTheses);
 
-            return new CustomResponse<number>(newProcedure.id, ResultType.OK, "Trámite registrado exitosamente.", 201);
+
+
+            return new CustomResponse<ProcedureDTO>(newProcedure, ResultType.OK, "Trámite registrado exitosamente.", 201);
 
         } catch (error) {
             if (error instanceof Error)

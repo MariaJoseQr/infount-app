@@ -77,11 +77,36 @@ export class ProcedureDAO {
         }
     }
 
-    static async createProcedure(procedureData: Prisma.ProcedureCreateInput): Promise<Procedure> {
+    static async createProcedure(procedureData: Prisma.ProcedureCreateInput): Promise<ProcedureDTO> {
         try {
-            return await db.procedure.create({
+            const procedureModel = await db.procedure.create({
                 data: procedureData,
+                include: {
+                    professor: {
+                        select: {
+                            id: true, grade: { select: { id: true, abbreviation: true } },
+                            user: {
+                                select: { id: true, name: true }
+                            }
+                        },
+                    },
+                    state: {
+                        select: { id: true, name: true }
+                    }
+                }
             });
+            const procedureDTO: ProcedureDTO = {
+                id: procedureModel.id,
+                registerTypes: procedureModel.thesisTypeIds?.split(',').map(id => ({ id: parseInt(id) })),
+                professor: procedureModel.professor,
+                amount: procedureModel.amount,
+                startDate: procedureModel.startDate ?? undefined,
+                endDate: procedureModel.endDate ?? undefined,
+                state: procedureModel.state,
+                charges: procedureModel.chargeIds?.split(',').map(id => ({ id: parseInt(id) })),
+                createdAt: procedureModel.createdAt
+            }
+            return procedureDTO;
         } catch (error) {
             if (error instanceof Error) throw new Error(error.message);
             throw new Error("Error desconocido al registrar la trámite");
