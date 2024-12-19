@@ -23,7 +23,6 @@ export function ProcedureTable() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProcedure, setSelectedProcedure] = useState<ProcedureDTO>();
   const [showModalEdit, setShowModalEdit] = useState(false);
-  const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
   const [showDownloadModal, setShowDonloadModal] = useState(false);
 
   useEffect(() => {
