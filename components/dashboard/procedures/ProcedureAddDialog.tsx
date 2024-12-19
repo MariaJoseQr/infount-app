@@ -33,10 +33,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, ChevronsUpDownIcon } from "lucide-react";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { CustomResponse } from "@/app/beans/customResponse";
-import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
-/* eslint-enable @typescript-eslint/no-unused-vars */
 import {
   Popover,
   PopoverContent,
@@ -45,6 +41,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { ThesisTypeDTO } from "@/app/beans/dto/thesisTypeDTO";
 import { ChargeDTO } from "@/app/beans/dto/chargeDTO";
+import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 
 export function ProcedureAddDialog({
   isOpen,
@@ -79,7 +76,7 @@ export function ProcedureAddDialog({
 
   useEffect(() => {
     axios
-      .get<CustomResponse<ProfessorDTO[]>>("/api/professors")
+      .get("/api/professors")
       .then((response) => {
         setProfessors(response.data.result || []);
       })
@@ -334,7 +331,8 @@ export function ProcedureAddDialog({
                               >
                                 {field.value
                                   ? professors.find(
-                                      (prof) => prof.id === Number(field.value)
+                                      (prof: ProfessorDTO) =>
+                                        prof.id === Number(field.value)
                                     )?.user?.name
                                   : "Seleccione un docente"}
                                 <ChevronsUpDownIcon className="ml-auto h-4 w-4 text-gray-500" />
