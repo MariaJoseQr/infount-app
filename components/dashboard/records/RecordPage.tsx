@@ -10,7 +10,6 @@ export default function RecordPage() {
   const [recordImportDialogOpen, setRecordImportDialogOpen] = useState(false);
   const [selectedType, setSelectedType] = useState("");
   const [recordAddDialogOpen, setRecordAddDialogOpen] = useState(false);
-  const [recordSelected, setRecordSelected] = useState<any | undefined>();
 
   return (
     <>
@@ -52,7 +51,7 @@ export default function RecordPage() {
       <RecordAddDialog
         isOpen={recordAddDialogOpen}
         setIsOpen={setRecordAddDialogOpen}
-        record={recordSelected}
+        record={undefined}
       />
       <RecordImportDialog
         isOpen={recordImportDialogOpen}

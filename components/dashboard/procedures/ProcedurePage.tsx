@@ -6,7 +6,6 @@ import { useState } from "react";
 
 export default function RecordPage() {
   const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
-  const [procedureSelected, setProcedureSelected] = useState<any | undefined>();
 
   return (
     <>
@@ -29,7 +28,7 @@ export default function RecordPage() {
       <ProcedureAddDialog
         isOpen={procedureAddDialogOpen}
         setIsOpen={setProcedureAddDialogOpen}
-        procedure={procedureSelected}
+        procedure={undefined}
       />
 
       <div className="pt-4">

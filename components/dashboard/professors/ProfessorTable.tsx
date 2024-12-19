@@ -2,7 +2,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -17,11 +16,7 @@ import { CustomResponse } from "@/app/beans/customResponse";
 import BarLoader from "react-spinners/BarLoader";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 
-interface TableDemoProps {
-  filter?: string;
-}
-
-export function ProfessorTable({ filter }: TableDemoProps) {
+export function ProfessorTable() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ProfessorReq[]>([]);
   const [showModal, setShowModal] = useState(false);

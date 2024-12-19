@@ -44,6 +44,7 @@ export default function LoginForm() {
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
+    console.log("data login: ", data);
 
     try {
       router.push("/dashboard");

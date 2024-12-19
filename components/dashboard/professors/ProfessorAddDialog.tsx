@@ -32,7 +32,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDownIcon } from "lucide-react";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
-import { CustomResponse, ResultType } from "@/app/beans/customResponse";
+import { CustomResponse } from "@/app/beans/customResponse";
 import { ProfessorReq } from "@/app/beans/request/professorReq";
 import { GradeDTO } from "@/app/beans//dto/gradeDTO";
 
@@ -43,10 +43,9 @@ export function ProfessorAddDialog({
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  professor: ProfessorReq;
+  professor: ProfessorReq | undefined;
 }) {
   const [professorGrades, setProfessorGrades] = useState<GradeDTO[]>([]);
-  const [professors, setProfessors] = useState<ProfessorDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -57,17 +56,6 @@ export function ProfessorAddDialog({
         .catch((error) => console.error("Error obteniendo los grados:", error));
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    axios
-      .get<CustomResponse<ProfessorDTO[]>>("/api/professors")
-      .then((response) => {
-        setProfessors(response.data.result || []);
-      })
-      .catch((error) =>
-        console.error("Error obteniendo lista de profesores:", error)
-      );
-  }, []);
 
   const formSchema = z.object({
     code: z.string().min(1, "El campo es obligatorio"),
@@ -135,7 +123,7 @@ export function ProfessorAddDialog({
         console.log("Profesor registrado:", response.data);
       }
     } catch (error) {
-      console.error("Error en la solicitud:");
+      console.error("Error en la solicitud: ", error);
     } finally {
       setIsLoading(false);
       setIsOpen(false);

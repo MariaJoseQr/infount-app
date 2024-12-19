@@ -6,7 +6,6 @@ import { useState } from "react";
 
 export default function ProfessorPage() {
   const [professorAddDialogOpen, setProfessorAddDialogOpen] = useState(false);
-  const [professorSelected, setProfessorSelected] = useState<any | undefined>();
 
   return (
     <>
@@ -31,7 +30,7 @@ export default function ProfessorPage() {
       <ProfessorAddDialog
         isOpen={professorAddDialogOpen}
         setIsOpen={setProfessorAddDialogOpen}
-        professor={professorSelected}
+        professor={undefined}
       />
     </>
   );

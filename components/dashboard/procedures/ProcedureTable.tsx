@@ -2,12 +2,11 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Pencil, Trash2, DownloadIcon } from "lucide-react";
+import { Pencil, DownloadIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { ProcedureDeleteDialog } from "./ProcedureDeleteDialog";
 import { ProcedureAddDialog } from "./ProcedureAddDialog";
@@ -18,16 +17,12 @@ import BarLoader from "react-spinners/BarLoader";
 import { format } from "date-fns";
 import { ConstancyDownloadDialog } from "./ConstancyPdfDialog";
 
-interface TableDemoProps {
-  filter?: string;
-}
-
-export function ProcedureTable({ filter }: TableDemoProps) {
+export function ProcedureTable() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ProcedureDTO[] | []>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedProcedure, setSelectedProcedure] = useState<ProcedureDTO>();
-  const [showModalEdit, setShowModalEdit] = useState(false);
+  //const [showModalEdit, setShowModalEdit] = useState(false);
   const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
   const [showDownloadModal, setShowDonloadModal] = useState(false);
 
@@ -65,9 +60,10 @@ export function ProcedureTable({ filter }: TableDemoProps) {
     );
 
     setSelectedProcedure(procedure);
-    setShowModalEdit(true);
+    //setShowModalEdit(true);
   };
 
+  /*
   const openModal = (thesisId: string) => {
     const procedure = data.find(
       (procedure) => procedure.id?.toString() === thesisId
@@ -76,6 +72,7 @@ export function ProcedureTable({ filter }: TableDemoProps) {
     setSelectedProcedure(procedure);
     setShowModal(true);
   };
+  */
 
   const handleDelete = async () => {
     if (selectedProcedure) {

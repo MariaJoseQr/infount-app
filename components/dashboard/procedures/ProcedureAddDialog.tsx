@@ -33,7 +33,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, ChevronsUpDownIcon } from "lucide-react";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
-import { CustomResponse, ResultType } from "@/app/beans/customResponse";
+import { CustomResponse } from "@/app/beans/customResponse";
 import {
   Popover,
   PopoverContent,
@@ -53,23 +53,11 @@ export function ProcedureAddDialog({
   setIsOpen: (open: boolean) => void;
   procedure: ProcedureDTO | undefined;
 }) {
-  const [procedures, setProcedures] = useState<ProcedureDTO[]>([]);
   const [professors, setProfessors] = useState<ProfessorDTO[]>([]);
   const [thesisTypes, setThesisTypes] = useState<ThesisTypeDTO[]>([]);
   const [charges, setCharges] = useState<ChargeDTO[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    axios
-      .get<CustomResponse<ProcedureDTO[]>>("/api/professors")
-      .then((response) => {
-        setProcedures(response.data.result || []);
-      })
-      .catch((error) =>
-        console.error("Error obteniendo lista de trámites:", error)
-      );
-  }, []);
 
   useEffect(() => {
     axios
@@ -191,7 +179,7 @@ export function ProcedureAddDialog({
         console.log("Profesor registrado:", response.data);
       }
     } catch (error) {
-      console.error("Error en la solicitud:");
+      console.error("Error en la solicitud:", error);
     } finally {
       setIsLoading(false);
       setIsOpen(false);
