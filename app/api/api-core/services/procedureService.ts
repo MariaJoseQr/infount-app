@@ -160,6 +160,9 @@ export class ProcedureService {
             if (!data.id)
                 return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "ID del trámite no proporcionado.", 400);
 
+            if (data.state.id == 1)
+                return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Estado no válido", 400);
+
             //TODO: VERIFICAR USUARIO EXISTENTE PERTENECE AL PROFESSOR
             const existingProcedure = await ProcedureDAO.getProcedureById(data.id);
             console.log("existingProcedure: ", existingProcedure)

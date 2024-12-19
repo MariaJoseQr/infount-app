@@ -15,10 +15,7 @@ import axios from "axios";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
 import { CustomResponse } from "@/app/beans/customResponse";
 import BarLoader from "react-spinners/BarLoader";
-import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { format } from "date-fns";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import ConstancyPDF from "./ConstancyPDF";
 import { ConstancyDownloadDialog } from "./ConstancyPdfDialog";
 
 interface TableDemoProps {
