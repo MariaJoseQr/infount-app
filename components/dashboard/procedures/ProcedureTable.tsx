@@ -9,7 +9,7 @@ import {
 import { Pencil, DownloadIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { ProcedureDeleteDialog } from "./ProcedureDeleteDialog";
-import { ProcedureAddDialog } from "./ProcedureAddDialog";
+import { ProcedureEditDialog } from "./ProcedureEditDialog";
 import axios from "axios";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
 import { CustomResponse } from "@/app/beans/customResponse";
@@ -22,7 +22,7 @@ export function ProcedureTable() {
   const [data, setData] = useState<ProcedureDTO[] | []>([]);
   const [showModal, setShowModal] = useState(false);
   const [selectedProcedure, setSelectedProcedure] = useState<ProcedureDTO>();
-  //const [showModalEdit, setShowModalEdit] = useState(false);
+  const [showModalEdit, setShowModalEdit] = useState(false);
   const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
   const [showDownloadModal, setShowDonloadModal] = useState(false);
 
@@ -60,7 +60,7 @@ export function ProcedureTable() {
     );
 
     setSelectedProcedure(procedure);
-    //setShowModalEdit(true);
+    setShowModalEdit(true);
   };
 
   /*
@@ -163,9 +163,9 @@ export function ProcedureTable() {
         setIsOpen={setShowDonloadModal}
         procedure={selectedProcedure!}
       />
-      <ProcedureAddDialog
-        isOpen={procedureAddDialogOpen}
-        setIsOpen={setProcedureAddDialogOpen}
+      <ProcedureEditDialog
+        isOpen={showModalEdit}
+        setIsOpen={setShowModalEdit}
         procedure={selectedProcedure}
       />
       <ProcedureDeleteDialog
