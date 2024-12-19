@@ -31,8 +31,6 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDownIcon } from "lucide-react";
-import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
-import { CustomResponse } from "@/app/beans/customResponse";
 import { ProfessorReq } from "@/app/beans/request/professorReq";
 import { GradeDTO } from "@/app/beans//dto/gradeDTO";
 
