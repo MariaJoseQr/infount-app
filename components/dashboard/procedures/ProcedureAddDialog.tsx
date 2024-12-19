@@ -33,14 +33,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon, ChevronsUpDownIcon } from "lucide-react";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { CustomResponse } from "@/app/beans/customResponse";
+import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
+/* eslint-enable @typescript-eslint/no-unused-vars */
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { ThesisTypeDTO } from "@/app/beans/dto/thesisTypeDTO";
 import { ChargeDTO } from "@/app/beans/dto/chargeDTO";
 
