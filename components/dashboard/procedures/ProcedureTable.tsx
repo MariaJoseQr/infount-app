@@ -122,7 +122,19 @@ export function ProcedureTable({ filter }: TableDemoProps) {
                   </TableCell>
                   <TableCell>{procedure.professor?.user?.name}</TableCell>
                   <TableCell>
-                    <div className="bg-orange-500 rounded-full px-2 py-1 text-center w-32 text-white">
+                    <div
+                      className={`rounded-full px-2 py-1 text-center w-52 text-white ${
+                        procedure.state?.id === 1
+                          ? "bg-yellow-500" // En proceso
+                          : procedure.state?.id === 3
+                          ? "bg-green-500" // Descargado
+                          : procedure.state?.id === 4
+                          ? "bg-orange-500" // Firmado
+                          : procedure.state?.id === 5
+                          ? "bg-gray-400" // Entregado
+                          : "bg-gray-100 text-black"
+                      }`}
+                    >
                       {procedure.state?.name}
                     </div>
                   </TableCell>
@@ -139,12 +151,6 @@ export function ProcedureTable({ filter }: TableDemoProps) {
                         className="cursor-pointer text-primary"
                         size={18}
                         onClick={() => openEditModal(procedure.id!.toString())}
-                      />
-                      <Trash2
-                        className="cursor-pointer"
-                        color="red"
-                        size={18}
-                        onClick={() => openModal(procedure.id!.toString())}
                       />
                     </div>
                   </TableCell>
