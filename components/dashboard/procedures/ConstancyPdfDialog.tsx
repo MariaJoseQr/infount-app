@@ -24,7 +24,8 @@ import { Button } from "@/components/ui/button";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
 import { ProcedureReq } from "@/app/beans/request/procedureReq";
 import { format } from "date-fns";
-import emailjs from "@emailjs/browser"
+import emailjs from "@emailjs/browser";
+import { Loader2 } from "lucide-react";
 
 export function ConstancyDownloadDialog({
   isOpen,
@@ -36,7 +37,6 @@ export function ConstancyDownloadDialog({
   procedure: ProcedureDTO;
 }) {
   const [loading, setLoading] = useState(true);
-  // const [data, setData] = useState<ThesisDTO[]>([]);
   const [procedureConstancy, setData] = useState<ProcedureDTO>();
 
   const pdfRef = useRef<HTMLDivElement | null>(null);
@@ -92,12 +92,16 @@ export function ConstancyDownloadDialog({
               };
 
               // Validar las variables de entorno
-              const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "";
-              const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? "";
+              const serviceId =
+                process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "";
+              const templateId =
+                process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? "";
               const userId = process.env.NEXT_PUBLIC_EMAILJS_USER_ID ?? "";
 
               if (!serviceId || !templateId || !userId) {
-                console.error("Faltan configuraciones en las variables de entorno.");
+                console.error(
+                  "Faltan configuraciones en las variables de entorno."
+                );
                 return;
               }
 
@@ -150,11 +154,11 @@ export function ConstancyDownloadDialog({
         >
           <DialogHeader>
             <DialogTitle className="text-primary">
-              Constancia Generada
+              Generación de Constancia
             </DialogTitle>
             <DialogDescription>
-              La constancia ha sido generad font-semiboa con éxito. Presiona el
-              botón para iniciar la descarga del documento.
+              La constancia está siendo generada. Presiona el botón para
+              descargar del documento.
             </DialogDescription>
           </DialogHeader>
 
@@ -304,7 +308,10 @@ export function ConstancyDownloadDialog({
             </div>
           </div>
           <DialogFooter className="mt-4">
-            <Button onClick={downloadPDF}>Descargar</Button>
+            <Button onClick={downloadPDF} disabled={loading}>
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Descargar
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -41,10 +41,12 @@ export function ProcedureEditDialog({
   isOpen,
   setIsOpen,
   procedure,
+  onEditProcedure,
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   procedure: ProcedureDTO | undefined;
+  onEditProcedure: (procedure: ProcedureDTO) => void;
 }) {
   const [states, setStates] = useState<StateDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -84,22 +86,17 @@ export function ProcedureEditDialog({
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    console.log("data state submit: ", data);
-
     const stateData = {
       id: procedure!.id,
       state: { id: data.stateId },
     };
 
-    console.log("stateData:", stateData);
-
     try {
-      const response = await axios.put("/api/procedures", stateData, {
-        headers: { "Content-Type": "application/json" },
-      });
-      console.log("procedure response: ", response);
+      const response = await axios.put("/api/procedures", stateData);
+
+      onEditProcedure(response.data.result);
     } catch (error) {
-      console.error("Error en la solicitud:", error);
+      console.error("Error al editar el trámite:", error);
     } finally {
       setIsLoading(false);
       setIsOpen(false);
@@ -182,11 +179,7 @@ export function ProcedureEditDialog({
 
             <DialogFooter className="mt-4">
               <Button type="submit" disabled={isLoading}>
-                {isLoading
-                  ? "Guardando..."
-                  : procedure
-                  ? "Actualizar"
-                  : "Guardar"}
+                {isLoading ? "Guardando..." : "Guardar"}
               </Button>
             </DialogFooter>
           </form>

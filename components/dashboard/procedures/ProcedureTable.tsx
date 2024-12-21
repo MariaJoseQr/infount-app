@@ -7,45 +7,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Pencil, DownloadIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { ProcedureDeleteDialog } from "./ProcedureDeleteDialog";
+import React, { useState } from "react";
 import { ProcedureEditDialog } from "./ProcedureEditDialog";
-import axios from "axios";
 import { ProcedureDTO } from "@/app/beans/dto/procedureDTO";
-import { CustomResponse } from "@/app/beans/customResponse";
 import BarLoader from "react-spinners/BarLoader";
 import { format } from "date-fns";
 import { ConstancyDownloadDialog } from "./ConstancyPdfDialog";
 
-export function ProcedureTable() {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<ProcedureDTO[] | []>([]);
-  const [showModal, setShowModal] = useState(false);
+export function ProcedureTable({
+  procedures,
+  loading,
+  onEditProcedure,
+}: {
+  procedures: ProcedureDTO[];
+  loading: boolean;
+  onEditProcedure: (updatedProcedure: ProcedureDTO) => void;
+}) {
   const [selectedProcedure, setSelectedProcedure] = useState<ProcedureDTO>();
   const [showModalEdit, setShowModalEdit] = useState(false);
   const [showDownloadModal, setShowDonloadModal] = useState(false);
 
-  useEffect(() => {
-    const fetchProcedures = async () => {
-      setLoading(true);
-
-      try {
-        const response = await axios.get<CustomResponse<ProcedureDTO[]>>(
-          "/api/procedures"
-        );
-
-        setData(response.data.result || []);
-      } catch (error) {
-        console.error("Error fetching procedures:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProcedures();
-  }, []);
-
   const openDownloadModal = (procedureId: string) => {
-    const procedure = data.find(
+    const procedure = procedures.find(
       (procedure) => procedure.id?.toString() === procedureId
     );
 
@@ -53,40 +36,13 @@ export function ProcedureTable() {
     setShowDonloadModal(true);
   };
 
-  const openEditModal = (procedureId: string) => {
-    const procedure = data.find(
-      (procedure) => procedure.id?.toString() === procedureId
+  const openEditModal = (procedureId: number) => {
+    const procedure = procedures.find(
+      (procedure) => procedure.id === procedureId
     );
 
     setSelectedProcedure(procedure);
     setShowModalEdit(true);
-  };
-
-  /*
-  const openModal = (thesisId: string) => {
-    const procedure = data.find(
-      (procedure) => procedure.id?.toString() === thesisId
-    );
-
-    setSelectedProcedure(procedure);
-    setShowModal(true);
-  };
-  */
-
-  const handleDelete = async () => {
-    if (selectedProcedure) {
-      try {
-        await axios.put(`/api/professors/${selectedProcedure.id}`);
-
-        setData(
-          data.filter((procedure) => procedure.id !== selectedProcedure.id)
-        );
-        setShowModal(false);
-        setSelectedProcedure(undefined);
-      } catch (error) {
-        console.error("Error deleting procedure:", error);
-      }
-    }
   };
 
   return (
@@ -111,7 +67,7 @@ export function ProcedureTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((procedure) => (
+              procedures.map((procedure) => (
                 <TableRow key={procedure.id}>
                   <TableCell>
                     {format(procedure.createdAt, "dd/MM/yyyy")}
@@ -146,7 +102,7 @@ export function ProcedureTable() {
                       <Pencil
                         className="cursor-pointer text-primary"
                         size={18}
-                        onClick={() => openEditModal(procedure.id!.toString())}
+                        onClick={() => openEditModal(procedure.id!)}
                       />
                     </div>
                   </TableCell>
@@ -166,11 +122,7 @@ export function ProcedureTable() {
         isOpen={showModalEdit}
         setIsOpen={setShowModalEdit}
         procedure={selectedProcedure}
-      />
-      <ProcedureDeleteDialog
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={handleDelete}
+        onEditProcedure={onEditProcedure}
       />
     </>
   );

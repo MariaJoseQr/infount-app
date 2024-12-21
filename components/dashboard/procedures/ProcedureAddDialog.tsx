@@ -47,10 +47,12 @@ export function ProcedureAddDialog({
   isOpen,
   setIsOpen,
   procedure,
+  onAddProcedure,
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
   procedure: ProcedureDTO | undefined;
+  onAddProcedure: (newProcedure: ProcedureDTO) => void;
 }) {
   const [professors, setProfessors] = useState<ProfessorDTO[]>([]);
   const [thesisTypes, setThesisTypes] = useState<ThesisTypeDTO[]>([]);
@@ -138,8 +140,6 @@ export function ProcedureAddDialog({
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    console.log("data submit: ", data);
-
     const procedureData = {
       startDate: data.startDate,
       endDate: data.endDate,
@@ -159,26 +159,12 @@ export function ProcedureAddDialog({
       },
     };
 
-    console.log("procedureData:", procedureData);
-
     try {
-      if (!procedure) {
-        const response = await axios.post("/api/procedures", procedureData, {
-          headers: { "Content-Type": "application/json" },
-        });
-        console.log("Trámite registrado:", response.data);
-      } else {
-        const response = await axios.put(
-          "/api/professors",
-          { id: procedure.id, ...procedureData },
-          {
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        console.log("Profesor registrado:", response.data);
-      }
+      const response = await axios.post("/api/procedures", procedureData);
+
+      onAddProcedure(response.data.result);
     } catch (error) {
-      console.error("Error en la solicitud:", error);
+      console.error("Error al guardar el trámite:", error);
     } finally {
       setIsLoading(false);
       setIsOpen(false);
