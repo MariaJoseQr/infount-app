@@ -56,10 +56,7 @@ export default function LoginForm() {
   };
 
   return (
-    <Card
-      className="w-[400px] max-h-[85vh] overflow-y-auto"
-      style={{ clipPath: "inset(0 round 0.45rem)" }}
-    >
+    <Card className="w-[400px] max-h-[85vh] overflow-y-auto shadow-lg">
       <CardHeader className="items-center">
         <Image src="/infologo.png" alt="Info Logo" width={166} height={56} />
         <CardTitle className="text-primary">Inicio de Sesión</CardTitle>

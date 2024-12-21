@@ -14,8 +14,11 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
+
   const [activePage, setActivePage] = useState("");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
@@ -39,6 +42,12 @@ export default function DashboardPage() {
   const handlePageChange = (url: string) => {
     window.location.hash = url;
     setActivePage(url);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    router.push("/login");
   };
 
   return (
@@ -72,7 +81,10 @@ export default function DashboardPage() {
                 Configuración
               </DropdownMenuItem>
             </Link>
-            <DropdownMenuItem className="cursor-pointer">
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onSelect={handleLogout}
+            >
               <LogOut />
               Cerrar Sesión
             </DropdownMenuItem>
