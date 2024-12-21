@@ -24,6 +24,23 @@ export class ThesisDAO {
         }
     }
 
+    static async existsName(name: string, id?: number): Promise<Thesis | null> {
+        try {
+            const thesis = await db.thesis.findFirst({
+                where: {
+                    name: name,
+                    isDeleted: false,
+                    ...(id ? { id: { not: id } } : {})
+                },
+            });
+
+            return thesis; // Retorna el objeto si existe, null si no
+        } catch (error) {
+            if (error instanceof Error) throw new Error(error.message);
+            throw new Error("Error desconocido al registrar la tesis");
+        }
+    }
+
     static async getAllThesis(): Promise<ThesisDTO[]> {
         try {
             const thesis: ThesisDTO[] = await db.thesis.findMany({
@@ -38,6 +55,7 @@ export class ThesisDAO {
                         },
                     },
                 },
+                orderBy: { createdAt: 'desc' }
             });
 
             // Transformar los datos a ThesisDTO

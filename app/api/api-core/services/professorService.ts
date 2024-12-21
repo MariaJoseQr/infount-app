@@ -28,12 +28,18 @@ export class ProfessorService {
 
     static async createProfessor(data: ProfessorReq): Promise<CustomResponse<ProfessorDTO>> {
         try {
-            // console.log("Datos recibidos:", data);
-
             if (!data.name || !data.email || !data.cellphone || !data.code || !data.gradeId)
                 return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar al docente.", 400);
 
-            //TODO: Validaciones para ver si ya existe usuario, correo, 
+            const existingUsername = await UserDAO.existsUsername(data.email);
+            if (existingUsername != null) {
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Nombre de usuario ya registrado.", 422);
+            }
+
+            const existingCode = await ProfessorDAO.existsCode(data.code);
+            if (existingCode != null) {
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Código de docente ya registrado.", 422);
+            }
 
             const userReq: UserReq = {
                 username: data.email,
@@ -52,9 +58,6 @@ export class ProfessorService {
                 userId: newUser.id,
             });
 
-
-
-
             return new CustomResponse<ProfessorDTO>(newProfessorDTO, ResultType.OK, "Profesor registrado exitosamente.", 201);
 
 
@@ -70,23 +73,27 @@ export class ProfessorService {
             // console.log("Datos recibidos:", data);
             if (!data.name || !data.email || !data.cellphone || !data.code || !data.gradeId)
                 return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar al docente.", 400);
-
             if (!data.id) {
-                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "ID del profesor no proporcionado.", 400);
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "ID del Docente no proporcionado.", 400);
             }
-
-            //TODO: VERIFICAR USUARIO EXISTENTE PERTENECE AL PROFESSOR
 
             const existingProfessor = await ProfessorDAO.getProfessorById(data.id);
-            // console.log("existingProfessor: ", existingProfessor)
             if (!existingProfessor) {
-                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Profesor no encontrado.", 404);
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Docente no encontrado.", 404);
             }
-
+            const existingUsername = await UserDAO.existsUsername(data.email, existingProfessor.userId);
+            if (existingUsername != null) {
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Nombre de usuario ya registrado.", 422);
+            }
+            const existingCode = await ProfessorDAO.existsCode(data.code, existingProfessor.id);
+            if (existingCode != null) {
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Código de docente ya registrado.", 422);
+            }
             const existingUser = await UserDAO.getUserById(existingProfessor.userId);
             if (!existingUser) {
                 return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Usuario no encontrado.", 404);
             }
+
             const user: UserReq = {
                 id: existingUser.id,
                 password: existingUser.password,
@@ -94,6 +101,7 @@ export class ProfessorService {
                 email: data.email,
                 cellphone: data.cellphone
             }
+
             const updatedUser = await UserDAO.updateUser(user);
             console.log("updatedUser: ", updatedUser)
             const updatedProfessorDTO: ProfessorDTO = await ProfessorDAO.updateProfessor({
@@ -101,8 +109,6 @@ export class ProfessorService {
                 code: data.code,
                 gradeId: data.gradeId
             });
-
-
 
             if (!updatedProfessorDTO)
                 return new CustomResponse<ProfessorDTO>(null, ResultType.ERROR, "Profesor no actualizado.", 404);
