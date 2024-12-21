@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     try {
         const body: ProfessorReq = await request.json();
 
-        const response: CustomResponse<number> = await ProfessorService.createProfessor(body);
+        const response: CustomResponse<ProfessorDTO> = await ProfessorService.createProfessor(body);
         return new NextResponse(JSON.stringify(response), { status: response.status });
 
     } catch (error) {
@@ -43,7 +43,7 @@ export async function PUT(request: NextRequest) {
     try {
         const body: ProfessorReq = await request.json();
 
-        const response: CustomResponse<boolean> = await ProfessorService.updateProfessor(body);
+        const response: CustomResponse<ProfessorDTO> = await ProfessorService.updateProfessor(body);
         return new NextResponse(JSON.stringify(response), { status: response.status });
 
     } catch (error) {

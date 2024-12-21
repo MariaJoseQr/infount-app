@@ -29,15 +29,15 @@ export class ThesisService {
         }
     }
 
-    static async createThesis(data: ThesisDTO): Promise<CustomResponse<number>> {
+    static async createThesis(data: ThesisDTO): Promise<CustomResponse<ThesisDTO>> {
         try {
             // console.log("Datos recibidos:", data);
 
             if (!data.name || !data.resolutionCode || !data.firstStudentName || !data.type?.id || !data.professorsThesis || data.professorsThesis.length === 0)
-                return new CustomResponse<number>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar la tesis.", 400);
+                return new CustomResponse<ThesisDTO>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar la tesis.", 400);
 
             if (!validateOneThesis(data))
-                return new CustomResponse<number>(null, ResultType.WARNING, "La lógica de validación adicional no se cumplió.", 400);
+                return new CustomResponse<ThesisDTO>(null, ResultType.WARNING, "La lógica de validación adicional no se cumplió.", 400);
 
             // Preparar datos para la inserción
             const newThesisData: Prisma.ThesisCreateInput = {
@@ -55,9 +55,9 @@ export class ThesisService {
                 },
             };
 
-            const newThesis = await ThesisDAO.createThesis(newThesisData);
+            const newThesisDTO: ThesisDTO = await ThesisDAO.createThesis(newThesisData);
 
-            return new CustomResponse<number>(newThesis.id, ResultType.OK, "Tesis registrada exitosamente.", 201);
+            return new CustomResponse<ThesisDTO>(newThesisDTO, ResultType.OK, "Tesis registrada exitosamente.", 201);
 
         } catch (error) {
             console.error(error);
@@ -67,16 +67,16 @@ export class ThesisService {
         }
     }
 
-    static async updateThesis(data: ThesisDTO): Promise<CustomResponse<number>> {
+    static async updateThesis(data: ThesisDTO): Promise<CustomResponse<ThesisDTO>> {
         try {
             console.log("Datos recibidos para actualización:", data);
 
             // Validar datos obligatorios
             if (!data.id)
-                return new CustomResponse<number>(null, ResultType.ERROR, "El ID de la tesis es requerido para actualizar.", 500);
+                return new CustomResponse<ThesisDTO>(null, ResultType.ERROR, "El ID de la tesis es requerido para actualizar.", 500);
 
             if (!data.name || !data.resolutionCode || !data.firstStudentName || !data.type?.id)
-                return new CustomResponse<number>(null, ResultType.WARNING, "Faltan datos obligatorios para actualizar la tesis.", 400);
+                return new CustomResponse<ThesisDTO>(null, ResultType.WARNING, "Faltan datos obligatorios para actualizar la tesis.", 400);
 
             // Preparar datos para la actualización
             const updateData: Prisma.ThesisUpdateInput = {
@@ -99,7 +99,7 @@ export class ThesisService {
 
             const updatedThesis = await ThesisDAO.updateThesis(data.id, updateData);
 
-            return new CustomResponse<number>(updatedThesis.id, ResultType.OK, "Tesis actualizada exitosamente.", 200);
+            return new CustomResponse<ThesisDTO>(updatedThesis, ResultType.OK, "Tesis actualizada exitosamente.", 200);
 
         } catch (error) {
             if (error instanceof Error)

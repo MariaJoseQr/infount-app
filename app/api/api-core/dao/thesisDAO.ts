@@ -128,42 +128,90 @@ export class ThesisDAO {
         }
     }
 
-    static async createThesis(data: Prisma.ThesisCreateInput): Promise<Thesis> {
+    static async createThesis(data: Prisma.ThesisCreateInput): Promise<ThesisDTO> {
         try {
-            return await db.thesis.create({
+            const newThesis = await db.thesis.create({
                 data,
                 include: {
-                    type: { select: { name: true } },
-                    professorsThesis: {
-                        select: {
-                            professor: { select: { user: { select: { name: true } } } },
-                            charge: { select: { name: true } }
-                        }
-                    }
+                    type: { select: { id: true, name: true } },
+                    // professorsThesis: {
+                    //     select: {
+                    //         id: true,
+                    //         professor: { select: { user: { select: { name: true } } } },
+                    //         thesis: { select: { id: true } },
+                    //         charge: { select: { name: true } }
+                    //     }
+                    // }
                 },
             });
+
+            // const professorThesisDTO: ProfessorThesisDTO[] = newThesis.professorsThesis.map(x => ({
+            //     id: x.id, //?
+            //     professor: x.professor, //?
+            //     charge: x.charge, //?
+            //     thesisId: x.id, //?
+            // } as ProfessorThesisDTO));
+
+
+
+            const thesisDTO: ThesisDTO = {
+                id: newThesis.id,
+                name: newThesis.name,
+                resolutionCode: newThesis.resolutionCode,
+                date: newThesis.date ?? null,
+                firstStudentName: newThesis.firstStudentName,
+                secondStudentName: newThesis.secondStudentName ?? null,
+                type: newThesis.type,
+                // professorsThesis: professorThesisDTO,
+                createdAt: newThesis.createdAt,
+            }
+            return thesisDTO;
         } catch (error) {
             if (error instanceof Error) throw new Error(error.message);
             throw new Error("Error desconocido al registrar la tesis");
         }
     }
 
-    static async updateThesis(id: number, data: Prisma.ThesisUpdateInput): Promise<Thesis> {
+    static async updateThesis(id: number, data: Prisma.ThesisUpdateInput): Promise<ThesisDTO> {
         try {
             // Busca la tesis por ID y actualiza los campos
-            return await db.thesis.update({
+            const updatedThesis = await db.thesis.update({
                 where: { id },  // Filtra por el ID de la tesis
                 data,  // Los datos para actualizar
                 include: {
-                    type: { select: { name: true } },
-                    professorsThesis: {
-                        select: {
-                            professor: { select: { user: { select: { name: true } } } },
-                            charge: { select: { name: true } }
-                        }
-                    }
+                    type: { select: { id: true, name: true } },
+                    // professorsThesis: {
+                    //     select: {
+                    //         id: true,
+                    //         professor: { select: { user: { select: { name: true } } } },
+                    //         thesis: { select: { id: true } },
+                    //         charge: { select: { name: true } }
+                    //     }
+                    // }
                 },
             });
+
+            // const professorThesisDTO: ProfessorThesisDTO[] = updatedThesis.professorsThesis.map(x => ({
+            //     id: x.id, //?
+            //     professor: x.professor, //?
+            //     charge: x.charge, //?
+            //     thesisId: x.id, //?
+            // } as ProfessorThesisDTO));
+
+
+
+            const thesisDTO: ThesisDTO = {
+                id: updatedThesis.id,
+                name: updatedThesis.name,
+                resolutionCode: updatedThesis.resolutionCode,
+                date: updatedThesis.date ?? null,
+                firstStudentName: updatedThesis.firstStudentName,
+                secondStudentName: updatedThesis.secondStudentName ?? null,
+                type: updatedThesis.type,
+                // professorsThesis: professorThesisDTO,
+                createdAt: updatedThesis.createdAt,
+            }
+            return thesisDTO;
         } catch (error) {
             if (error instanceof Error) throw new Error(error.message);
             throw new Error("Error desconocido al actualizar la tesis");

@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     try {
         const body: ThesisDTO = await request.json();
 
-        const response: CustomResponse<number> = await ThesisService.createThesis(body);
+        const response: CustomResponse<ThesisDTO> = await ThesisService.createThesis(body);
         return new NextResponse(JSON.stringify(response), { status: response.status });
 
     } catch (error) {
@@ -39,7 +39,7 @@ export async function PUT(request: NextRequest) {
     try {
         const body: ThesisDTO = await request.json();
 
-        const response: CustomResponse<number> = await ThesisService.updateThesis(body);
+        const response: CustomResponse<ThesisDTO> = await ThesisService.updateThesis(body);
         return new NextResponse(JSON.stringify(response), { status: response.status });
 
     } catch (error) {
