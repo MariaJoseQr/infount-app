@@ -29,7 +29,7 @@ export class ProfessorDAO {
         }
     }
 
-    static async createProfessor(data: { code: string; gradeId: number; userId: number }): Promise<Professor> {
+    static async createProfessor(data: { code: string; gradeId: number; userId: number }): Promise<ProfessorDTO> {
         try {
             const newProfessor = await db.professor.create({
                 data: {
@@ -37,8 +37,29 @@ export class ProfessorDAO {
                     grade: { connect: { id: data.gradeId } },
                     user: { connect: { id: data.userId } }, // Conectar el profesor con el usuario previamente creado
                 },
+                include: {
+                    user: {
+                        select: { id: true, name: true }
+                    },
+                    grade: { select: { id: true, abbreviation: true } },
+
+                },
+
             });
-            return newProfessor;
+
+
+            const professorDTO: ProfessorDTO = {
+                id: newProfessor.id,
+                code: newProfessor.code,
+
+                grade: newProfessor.grade,
+                user: newProfessor.user,
+
+                createdAt: newProfessor.createdAt,
+            }
+
+
+            return professorDTO;
         } catch (error) {
             if (error instanceof Error) throw new Error(error.message);
             throw new Error("Error desconocido al registrar la tesis");
@@ -51,29 +72,46 @@ export class ProfessorDAO {
         });
     }
 
-    static async updateProfessor(data: { id: number; code: string; gradeId: number; }): Promise<Professor> {
-        return db.professor.update({
+    static async updateProfessor(data: { id: number; code: string; gradeId: number; }): Promise<ProfessorDTO> {
+        const updatedProfessor = await db.professor.update({
             where: { id: data.id },
             data: {
                 code: data.code,
                 grade: { connect: { id: data.gradeId } },
                 updatedAt: new Date(),
+            }, include: {
+                user: {
+                    select: { id: true, name: true }
+                },
+                grade: { select: { id: true, abbreviation: true } },
+
             },
+
         });
+
+        const professorDTO: ProfessorDTO = {
+            id: updatedProfessor.id,
+            code: updatedProfessor.code,
+            grade: updatedProfessor.grade,
+            user: updatedProfessor.user,
+            createdAt: updatedProfessor.createdAt,
+        }
+
+        return professorDTO;
     }
 
-    static async deleteProfessorByUserId(userId: number): Promise<boolean> {
+    static async deleteProfessorByUserId(professorId: number): Promise<Professor> {
         try {
             // Realizar la actualización lógica del docente (marcarlo como eliminado)
             const updatedProfessor = await db.professor.update({
-                where: { userId },
+                where: { id: professorId },
                 data: { isDeleted: true },
             });
 
-            return updatedProfessor ? true : false;
+            return updatedProfessor;
         } catch (error) {
-            console.error(error);
-            return false;
+            if (error instanceof Error) throw new Error(error.message);
+            throw new Error("Error desconocido al eleminar al docente");
         }
     }
 }

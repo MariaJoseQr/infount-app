@@ -26,12 +26,12 @@ export class ProfessorService {
         }
     }
 
-    static async createProfessor(data: ProfessorReq): Promise<CustomResponse<number>> {
+    static async createProfessor(data: ProfessorReq): Promise<CustomResponse<ProfessorDTO>> {
         try {
             // console.log("Datos recibidos:", data);
 
             if (!data.name || !data.email || !data.cellphone || !data.code || !data.gradeId)
-                return new CustomResponse<number>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar al docente.", 400);
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar al docente.", 400);
 
             //TODO: Validaciones para ver si ya existe usuario, correo, 
 
@@ -46,13 +46,16 @@ export class ProfessorService {
 
             const newUser = await UserDAO.createUser(userReq);
 
-            const newProfessor = await ProfessorDAO.createProfessor({
+            const newProfessorDTO: ProfessorDTO = await ProfessorDAO.createProfessor({
                 code: data.code,
                 gradeId: data.gradeId,
                 userId: newUser.id,
             });
 
-            return new CustomResponse<number>(newProfessor.userId, ResultType.OK, "Profesor registrado exitosamente.", 201);
+
+
+
+            return new CustomResponse<ProfessorDTO>(newProfessorDTO, ResultType.OK, "Profesor registrado exitosamente.", 201);
 
 
         } catch (error) {
@@ -62,14 +65,14 @@ export class ProfessorService {
         }
     }
 
-    static async updateProfessor(data: ProfessorReq): Promise<CustomResponse<boolean>> {
+    static async updateProfessor(data: ProfessorReq): Promise<CustomResponse<ProfessorDTO>> {
         try {
             // console.log("Datos recibidos:", data);
             if (!data.name || !data.email || !data.cellphone || !data.code || !data.gradeId)
-                return new CustomResponse<boolean>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar al docente.", 400);
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Faltan datos obligatorios para registrar al docente.", 400);
 
             if (!data.id) {
-                return new CustomResponse<boolean>(null, ResultType.WARNING, "ID del profesor no proporcionado.", 400);
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "ID del profesor no proporcionado.", 400);
             }
 
             //TODO: VERIFICAR USUARIO EXISTENTE PERTENECE AL PROFESSOR
@@ -77,12 +80,12 @@ export class ProfessorService {
             const existingProfessor = await ProfessorDAO.getProfessorById(data.id);
             // console.log("existingProfessor: ", existingProfessor)
             if (!existingProfessor) {
-                return new CustomResponse<boolean>(null, ResultType.WARNING, "Profesor no encontrado.", 404);
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Profesor no encontrado.", 404);
             }
 
             const existingUser = await UserDAO.getUserById(existingProfessor.userId);
             if (!existingUser) {
-                return new CustomResponse<boolean>(null, ResultType.WARNING, "Usuario no encontrado.", 404);
+                return new CustomResponse<ProfessorDTO>(null, ResultType.WARNING, "Usuario no encontrado.", 404);
             }
             const user: UserReq = {
                 id: existingUser.id,
@@ -93,16 +96,18 @@ export class ProfessorService {
             }
             const updatedUser = await UserDAO.updateUser(user);
             console.log("updatedUser: ", updatedUser)
-            const updatedProfessor = await ProfessorDAO.updateProfessor({
+            const updatedProfessorDTO: ProfessorDTO = await ProfessorDAO.updateProfessor({
                 id: existingProfessor.id,
                 code: data.code,
                 gradeId: data.gradeId
             });
 
-            if (!updatedProfessor)
-                return new CustomResponse<boolean>(null, ResultType.ERROR, "Profesor no actualizado.", 404);
 
-            return new CustomResponse<boolean>(true, ResultType.OK, "Profesor actualizado exitosamente.", 200);
+
+            if (!updatedProfessorDTO)
+                return new CustomResponse<ProfessorDTO>(null, ResultType.ERROR, "Profesor no actualizado.", 404);
+
+            return new CustomResponse<ProfessorDTO>(updatedProfessorDTO, ResultType.OK, "Profesor actualizado exitosamente.", 200);
 
         } catch (error) {
             if (error instanceof Error)
@@ -118,15 +123,15 @@ export class ProfessorService {
                 return new CustomResponse<boolean>(false, ResultType.WARNING, 'No se encontró al docente.', 404);
             }
 
-            const userDeleted = await UserDAO.deleteUserById(id);
+            const userDeleted = await UserDAO.deleteUserById(professorDeleted.userId);
             if (!userDeleted) {
                 return new CustomResponse<boolean>(false, ResultType.WARNING, 'No se encontró al usuario asociado al docente.', 404);
             }
 
             return new CustomResponse<boolean>(true, ResultType.OK, 'Docente y usuario eliminados correctamente.', 200);
         } catch (error) {
-            console.error("Error al eliminar profesor:", error);
-            throw new Error("Error desconocido al eliminar al profesor.");
+            if (error instanceof Error) throw new Error(error.message);
+            throw new Error("Error desconocido al eleminar al docente");
         }
     }
 

@@ -18,7 +18,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
     } catch (error) {
         if (error instanceof Error)
-            return new NextResponse(error.message, { status: 500 });
-        return new NextResponse("Error desconocido al eliminar al docente", { status: 500 });
+            console.error(error);
+        throw new Error("Error desconocido al eliminar al docente");
     }
 }
