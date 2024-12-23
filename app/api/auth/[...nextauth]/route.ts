@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { db } from "@/lib/db";
 import bcrypt from 'bcrypt'
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
     providers: [
         CredentialsProvider({
             name: "Credentials",
@@ -43,6 +43,8 @@ export const authOptions = {
     }
 };
 
+
+// Handler para las rutas GET y POST
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };

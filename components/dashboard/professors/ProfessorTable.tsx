@@ -12,7 +12,6 @@ import { ProfessorDeleteDialog } from "./ProfessorDeleteDialog";
 import { ProfessorAddDialog } from "./ProfessorAddDialog";
 import BarLoader from "react-spinners/BarLoader";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
-import { useSession } from "next-auth/react";
 
 export function ProfessorTable({
   professors,
@@ -28,44 +27,7 @@ export function ProfessorTable({
   const [showModal, setShowModal] = useState(false);
   const [selectedProfessor, setSelectedProfessor] = useState<ProfessorDTO>();
   const [showModalEdit, setShowModalEdit] = useState(false);
-  const { status } = useSession();
 
-  useEffect(() => {
-    const fetchProfessors = async () => {
-      if (status === "unauthenticated") {
-        return;
-      }
-
-      setLoading(true);
-
-      try {
-        const response = await axios.get<CustomResponse<ProfessorDTO[]>>(
-          "/api/professors"
-        );
-
-        console.log("response: ", response);
-        const mappedData =
-          response.data.result?.map((professor) => ({
-            id: professor.id,
-            name: professor.user?.name || "",
-            email: professor.user?.email || "",
-            cellphone: professor.user?.cellphone || "",
-            code: professor.code || "",
-            gradeId: professor.grade?.id || 0,
-          })) || [];
-
-        setData(mappedData);
-      } catch (error) {
-        console.error("Error fetching professors:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (status === "authenticated") {
-      fetchProfessors();
-    }
-  }, [status]);
   const openEditModal = (professorId: number) => {
     const professor = professors.find(
       (professor) => professor.id === professorId
