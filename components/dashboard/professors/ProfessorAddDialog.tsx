@@ -31,17 +31,19 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronsUpDownIcon } from "lucide-react";
-import { ProfessorReq } from "@/app/beans/request/professorReq";
+import { ProfessorDTO } from "@/app/beans//dto/professorDTO";
 import { GradeDTO } from "@/app/beans//dto/gradeDTO";
 
 export function ProfessorAddDialog({
   isOpen,
   setIsOpen,
   professor,
+  onHandleProfessor,
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  professor: ProfessorReq | undefined;
+  professor: ProfessorDTO | undefined;
+  onHandleProfessor: (professor: ProfessorDTO) => void;
 }) {
   const [professorGrades, setProfessorGrades] = useState<GradeDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -83,10 +85,10 @@ export function ProfessorAddDialog({
     if (isOpen) {
       form.reset({
         code: professor?.code || "",
-        name: professor?.name || "",
-        email: professor?.email || "",
-        cellphone: professor?.cellphone || "",
-        gradeId: professor?.gradeId || undefined,
+        name: professor?.user?.name || "",
+        email: professor?.user?.email || "",
+        cellphone: professor?.user?.cellphone || "",
+        gradeId: professor?.grade?.id || undefined,
       });
     }
   }, [isOpen, professor, form]);
@@ -102,26 +104,21 @@ export function ProfessorAddDialog({
       gradeId: data.gradeId,
     };
 
-    console.log("professorData:", professorData);
-
     try {
       if (!professor) {
-        const response = await axios.post("/api/professors", professorData, {
-          headers: { "Content-Type": "application/json" },
-        });
-        console.log("Profesor registrado:", response.data);
+        const response = await axios.post("/api/professors", professorData);
+
+        onHandleProfessor(response.data.result);
       } else {
-        const response = await axios.put(
-          "/api/professors",
-          { id: professor.id, ...professorData },
-          {
-            headers: { "Content-Type": "application/json" },
-          }
-        );
-        console.log("Profesor registrado:", response.data);
+        const response = await axios.put("/api/professors", {
+          id: professor.id,
+          ...professorData,
+        });
+
+        onHandleProfessor(response.data.result);
       }
     } catch (error) {
-      console.error("Error en la solicitud: ", error);
+      console.error("Error al enviar el docente: ", error);
     } finally {
       setIsLoading(false);
       setIsOpen(false);
