@@ -9,20 +9,43 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Loader2 } from "lucide-react";
+import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
+import { useState } from "react";
+import axios from "axios";
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
+  setIsOpen: (open: boolean) => void;
+  professor: ProfessorDTO;
+  onDelete: (professor: ProfessorDTO) => void;
 }
 
 export const ProfessorDeleteDialog: React.FC<ConfirmDeleteModalProps> = ({
   isOpen,
-  onClose,
-  onConfirm,
+  setIsOpen,
+  professor,
+  onDelete,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleDelete = async () => {
+    setIsLoading(true);
+
+    try {
+      await axios.put(`/api/professors/${professor.id}`);
+
+      onDelete(professor);
+    } catch (error) {
+      console.error("Error deleting professor:", error);
+    } finally {
+      setIsLoading(false);
+      setIsOpen(false);
+    }
+  };
+
   return (
-    <AlertDialog open={isOpen} onOpenChange={onClose}>
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-primary font-bold">
@@ -33,15 +56,14 @@ export const ProfessorDeleteDialog: React.FC<ConfirmDeleteModalProps> = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogAction
-            onClick={() => {
-              onConfirm();
-              onClose();
-            }}
-          >
+          <AlertDialogAction onClick={handleDelete} disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Eliminar
           </AlertDialogAction>
-          <AlertDialogCancel className="text-gray-600" onClick={onClose}>
+          <AlertDialogCancel
+            className="text-gray-600"
+            onClick={() => setIsOpen(false)}
+          >
             Cancelar
           </AlertDialogCancel>
         </AlertDialogFooter>

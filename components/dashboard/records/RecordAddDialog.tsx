@@ -457,21 +457,22 @@ export function RecordAddDialog({
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-full">
-                              <DropdownMenuRadioGroup
-                                value={field.value}
-                                onValueChange={field.onChange}
-                              >
-                                <ScrollArea className="h-full max-h-32">
+                              <ScrollArea className="h-32">
+                                <DropdownMenuRadioGroup
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                >
                                   {professors?.map((professor) => (
                                     <DropdownMenuRadioItem
                                       key={professor.id}
                                       value={professor.id.toString()}
+                                      className="cursor-pointer"
                                     >
                                       {professor.user!.name}
                                     </DropdownMenuRadioItem>
                                   ))}
-                                </ScrollArea>
-                              </DropdownMenuRadioGroup>
+                                </DropdownMenuRadioGroup>
+                              </ScrollArea>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -513,11 +514,12 @@ export function RecordAddDialog({
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-full">
-                              <DropdownMenuRadioGroup
-                                value={field.value}
-                                onValueChange={field.onChange}
-                              >
-                                <ScrollArea className="h-full max-h-32">
+                              <ScrollArea className="h-32">
+                                <DropdownMenuRadioGroup
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                  className="cursor-pointer"
+                                >
                                   {professors?.map((professor) => (
                                     <DropdownMenuRadioItem
                                       key={professor.id}
@@ -526,8 +528,8 @@ export function RecordAddDialog({
                                       {professor.user!.name}
                                     </DropdownMenuRadioItem>
                                   ))}
-                                </ScrollArea>
-                              </DropdownMenuRadioGroup>
+                                </DropdownMenuRadioGroup>
+                              </ScrollArea>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -569,22 +571,23 @@ export function RecordAddDialog({
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-full">
-                              <DropdownMenuRadioGroup
-                                value={field.value}
-                                onValueChange={field.onChange}
-                              >
-                                <ScrollArea className="h-full max-h-32">
+                              <ScrollArea className="h-32">
+                                <DropdownMenuRadioGroup
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                >
                                   {professors?.map((professor) => (
                                     <DropdownMenuRadioItem
                                       key={professor.id}
                                       value={professor.id.toString()}
+                                      className="cursor-pointer"
                                     >
                                       {professor.user?.name ||
                                         "Nombre no definido"}
                                     </DropdownMenuRadioItem>
                                   ))}
-                                </ScrollArea>
-                              </DropdownMenuRadioGroup>
+                                </DropdownMenuRadioGroup>
+                              </ScrollArea>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -626,22 +629,23 @@ export function RecordAddDialog({
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="w-full">
-                              <DropdownMenuRadioGroup
-                                value={field.value}
-                                onValueChange={field.onChange}
-                              >
-                                <ScrollArea className="h-full max-h-32">
+                              <ScrollArea className="h-32">
+                                <DropdownMenuRadioGroup
+                                  value={field.value}
+                                  onValueChange={field.onChange}
+                                >
                                   {professors?.map((professor) => (
                                     <DropdownMenuRadioItem
                                       key={professor.id}
                                       value={professor.id.toString()}
+                                      className="cursor-pointer"
                                     >
                                       {professor.user?.name ||
                                         "Nombre no definido"}
                                     </DropdownMenuRadioItem>
                                   ))}
-                                </ScrollArea>
-                              </DropdownMenuRadioGroup>
+                                </DropdownMenuRadioGroup>
+                              </ScrollArea>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>

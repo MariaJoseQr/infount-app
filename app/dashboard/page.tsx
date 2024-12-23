@@ -19,8 +19,9 @@ import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react'
 
 export default function DashboardPage() {
-  const { status } = useSession();
   const router = useRouter();
+  const { status } = useSession();
+
   const [activePage, setActivePage] = useState("");
 
   useEffect(() => {
@@ -52,6 +53,12 @@ export default function DashboardPage() {
     setActivePage(url);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    router.push("/login");
+  };
+
   return (
     <main className="flex flex-1">
       <div className="flex pr-0">
@@ -66,20 +73,27 @@ export default function DashboardPage() {
         {activePage === "#tramites" && <ProcedurePage />}
         {activePage === "#registros" && <RecordPage />}
       </div>
-
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <div className="flex fixed top-5 right-5 bg-foreground shadow-lg z-50 rounded-full py-2 px-5 w-auto items-center cursor-pointer">
-            <CircleUserRound className="pr-2 w-8 h-8" />
-            <span className="font-semibold hidden md:block">Secretaría</span>
-            <Menu className="block md:hidden text-primary" />
-          </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="p-2">
-          <Link href="#cuenta" onClick={() => setActivePage("#cuenta")}>
-            <DropdownMenuItem className="cursor-pointer">
-              <Settings />
-              Configuración
+        <DropdownMenu open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
+          <DropdownMenuTrigger asChild>
+            <div className="flex fixed top-5 right-5 bg-foreground shadow-lg z-50 rounded-full py-2 px-5 w-auto items-center cursor-pointer">
+              <CircleUserRound className="pr-2 w-8 h-8" />
+              <span className="font-semibold hidden md:block">Secretaría</span>
+              <Menu className="block md:hidden text-primary" />
+            </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="p-2">
+            <Link href="#cuenta" onClick={() => setActivePage("#cuenta")}>
+              <DropdownMenuItem className="cursor-pointer">
+                <Settings />
+                Configuración
+              </DropdownMenuItem>
+            </Link>
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onSelect={handleLogout}
+            >
+              <LogOut />
+              Cerrar Sesión
             </DropdownMenuItem>
           </Link>
           <DropdownMenuItem

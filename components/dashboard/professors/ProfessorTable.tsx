@@ -7,29 +7,32 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Pencil, Trash2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ProfessorDeleteDialog } from "./ProfessorDeleteDialog";
 import { ProfessorAddDialog } from "./ProfessorAddDialog";
-import axios from "axios";
-import { ProfessorReq } from "@/app/beans/request/professorReq";
-import { CustomResponse } from "@/app/beans/customResponse";
 import BarLoader from "react-spinners/BarLoader";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 import { useSession } from "next-auth/react";
 
-export function ProfessorTable() {
-  const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<ProfessorReq[]>([]);
+export function ProfessorTable({
+  professors,
+  loading,
+  onHandleProfessor,
+  onDelete,
+}: {
+  professors: ProfessorDTO[];
+  loading: boolean;
+  onHandleProfessor: (updatedProfessor: ProfessorDTO) => void;
+  onDelete: (deletedProfessor: ProfessorDTO) => void;
+}) {
   const [showModal, setShowModal] = useState(false);
-  const [selectedProfessor, setSelectedProfessor] = useState<ProfessorReq | null>(null);
+  const [selectedProfessor, setSelectedProfessor] = useState<ProfessorDTO>();
   const [showModalEdit, setShowModalEdit] = useState(false);
   const { status } = useSession();
 
   useEffect(() => {
     const fetchProfessors = async () => {
       if (status === "unauthenticated") {
-        // Si el usuario no está autenticado, no se realiza la solicitud.
-        console.log("No estás autenticado. No se puede obtener la lista de docentes.");
         return;
       }
 
@@ -63,38 +66,22 @@ export function ProfessorTable() {
       fetchProfessors();
     }
   }, [status]);
-  const openEditModal = (professorIdEdit: string) => {
-    const professor = data.find(
-      (professor) => professor.id?.toString() === professorIdEdit
+  const openEditModal = (professorId: number) => {
+    const professor = professors.find(
+      (professor) => professor.id === professorId
     );
 
-    setSelectedProfessor(professor || null);
+    setSelectedProfessor(professor);
     setShowModalEdit(true);
   };
 
-  const openModal = (thesisId: string) => {
-    const professor = data.find(
-      (professor) => professor.id?.toString() === thesisId
+  const openModal = (professorId: number) => {
+    const professor = professors.find(
+      (professor) => professor.id === professorId
     );
 
-    setSelectedProfessor(professor || null);
+    setSelectedProfessor(professor);
     setShowModal(true);
-  };
-
-  const handleDelete = async () => {
-    if (selectedProfessor) {
-      try {
-        await axios.put(`/api/professors/${selectedProfessor.id}`);
-
-        setData(
-          data.filter((professor) => professor.id !== selectedProfessor.id)
-        );
-        setShowModal(false);
-        setSelectedProfessor(null);
-      } catch (error) {
-        console.error("Error deleting professor:", error);
-      }
-    }
   };
 
   return (
@@ -119,23 +106,23 @@ export function ProfessorTable() {
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((professor) => (
+              professors.map((professor) => (
                 <TableRow key={professor.code}>
                   <TableCell>{professor.code}</TableCell>
-                  <TableCell>{professor.name}</TableCell>
-                  <TableCell>{professor.email}</TableCell>
+                  <TableCell>{professor.user?.name}</TableCell>
+                  <TableCell>{professor.user?.email}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-4">
                       <Pencil
                         className="cursor-pointer text-primary"
                         size={18}
-                        onClick={() => openEditModal(professor.id!.toString())}
+                        onClick={() => openEditModal(professor.id)}
                       />
                       <Trash2
                         className="cursor-pointer"
                         color="red"
                         size={18}
-                        onClick={() => openModal(professor.id!.toString())}
+                        onClick={() => openModal(professor.id)}
                       />
                     </div>
                   </TableCell>
@@ -163,11 +150,13 @@ export function ProfessorTable() {
         isOpen={showModalEdit}
         setIsOpen={setShowModalEdit}
         professor={selectedProfessor!}
+        onHandleProfessor={onHandleProfessor}
       />
       <ProfessorDeleteDialog
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={handleDelete}
+        setIsOpen={setShowModal}
+        professor={selectedProfessor!}
+        onDelete={onDelete}
       />
     </>
   );
