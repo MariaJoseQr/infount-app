@@ -58,7 +58,7 @@ export class ProfessorDAO {
                 },
                 include: {
                     user: {
-                        select: { id: true, name: true }
+                        select: { id: true, name: true, cellphone: true, email: true }
                     },
                     grade: { select: { id: true, abbreviation: true } },
 
