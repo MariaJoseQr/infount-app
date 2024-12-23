@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/Sidebar";
@@ -14,10 +15,19 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signOut } from 'next-auth/react'
 
 export default function DashboardPage() {
+  const { status } = useSession();
+  const router = useRouter();
   const [activePage, setActivePage] = useState("");
-  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/login"); // Redirige al inicio de sesión si no está autenticado
+    }
+  }, [status, router]);
 
   useEffect(() => {
     const initialPage = window.location.hash || "#docentes";
@@ -34,6 +44,7 @@ export default function DashboardPage() {
     };
   }, []);
 
+  if (status === "loading") return <p>Cargando...</p>;
   if (!activePage) return null;
 
   const handlePageChange = (url: string) => {
@@ -42,43 +53,44 @@ export default function DashboardPage() {
   };
 
   return (
-    <>
-      <main className="flex flex-1">
-        <div className="flex pr-0">
-          <DashboardSidebar
-            activePage={activePage}
-            onPageChange={handlePageChange}
-          />
-          <SidebarTrigger />
-        </div>
-        <div className="flex flex-col flex-1 mb-4 mx-4 sm:mx-6 md:mx-8 lg:mr-10 xl:mr-12 mt-16 gap-2">
-          {activePage === "#docentes" && <ProfessorPage />}
-          {activePage === "#tramites" && <ProcedurePage />}
-          {activePage === "#registros" && <RecordPage />}
-        </div>
+    <main className="flex flex-1">
+      <div className="flex pr-0">
+        <DashboardSidebar
+          activePage={activePage}
+          onPageChange={handlePageChange}
+        />
+        <SidebarTrigger />
+      </div>
+      <div className="flex flex-col flex-1 mb-4 mx-4 sm:mx-6 md:mx-8 lg:mr-10 xl:mr-12 mt-16 gap-2">
+        {activePage === "#docentes" && <ProfessorPage />}
+        {activePage === "#tramites" && <ProcedurePage />}
+        {activePage === "#registros" && <RecordPage />}
+      </div>
 
-        <DropdownMenu open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
-          <DropdownMenuTrigger asChild>
-            <div className="flex fixed top-5 right-5 bg-foreground shadow-lg z-50 rounded-full py-2 px-5 w-auto items-center cursor-pointer">
-              <CircleUserRound className="pr-2 w-8 h-8" />
-              <span className="font-semibold hidden md:block">Secretaría</span>
-              <Menu className="block md:hidden text-primary" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="p-2">
-            <Link href="#cuenta" onClick={() => setActivePage("#cuenta")}>
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings />
-                Configuración
-              </DropdownMenuItem>
-            </Link>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <div className="flex fixed top-5 right-5 bg-foreground shadow-lg z-50 rounded-full py-2 px-5 w-auto items-center cursor-pointer">
+            <CircleUserRound className="pr-2 w-8 h-8" />
+            <span className="font-semibold hidden md:block">Secretaría</span>
+            <Menu className="block md:hidden text-primary" />
+          </div>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="p-2">
+          <Link href="#cuenta" onClick={() => setActivePage("#cuenta")}>
             <DropdownMenuItem className="cursor-pointer">
-              <LogOut />
-              Cerrar Sesión
+              <Settings />
+              Configuración
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </main>
-    </>
+          </Link>
+          <DropdownMenuItem
+            className="cursor-pointer"
+            onClick={() => signOut()}
+          >
+            <LogOut />
+            Cerrar Sesión
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </main>
   );
 }

@@ -15,17 +15,24 @@ import { ProfessorReq } from "@/app/beans/request/professorReq";
 import { CustomResponse } from "@/app/beans/customResponse";
 import BarLoader from "react-spinners/BarLoader";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
+import { useSession } from "next-auth/react";
 
 export function ProfessorTable() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<ProfessorReq[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [selectedProfessor, setSelectedProfessor] =
-    useState<ProfessorReq | null>(null);
+  const [selectedProfessor, setSelectedProfessor] = useState<ProfessorReq | null>(null);
   const [showModalEdit, setShowModalEdit] = useState(false);
+  const { status } = useSession();
 
   useEffect(() => {
-    const fetchTheses = async () => {
+    const fetchProfessors = async () => {
+      if (status === "unauthenticated") {
+        // Si el usuario no está autenticado, no se realiza la solicitud.
+        console.log("No estás autenticado. No se puede obtener la lista de docentes.");
+        return;
+      }
+
       setLoading(true);
 
       try {
@@ -51,9 +58,11 @@ export function ProfessorTable() {
         setLoading(false);
       }
     };
-    fetchTheses();
-  }, []);
 
+    if (status === "authenticated") {
+      fetchProfessors();
+    }
+  }, [status]);
   const openEditModal = (professorIdEdit: string) => {
     const professor = data.find(
       (professor) => professor.id?.toString() === professorIdEdit
