@@ -2,10 +2,51 @@ import { ProfessorTable } from "./ProfessorTable";
 import { ProfessorAddDialog } from "./ProfessorAddDialog";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
 
 export default function ProfessorPage() {
   const [professorAddDialogOpen, setProfessorAddDialogOpen] = useState(false);
+  const [professors, setProfessors] = useState<ProfessorDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfessors = async () => {
+      setLoading(true);
+
+      try {
+        const response = await axios.get("/api/professors");
+
+        setProfessors(response.data.result || []);
+      } catch (error) {
+        console.error("Error fetching professors:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfessors();
+  }, []);
+
+  const handleProfessor = (professor: ProfessorDTO) => {
+    setProfessors((prevProfessors) => {
+      const exists = prevProfessors.some((p) => p.id === professor.id);
+
+      if (exists) {
+        return prevProfessors.map((p) =>
+          p.id === professor.id ? professor : p
+        );
+      } else {
+        return [professor, ...prevProfessors];
+      }
+    });
+  };
+
+  const onDelete = (professor: ProfessorDTO) => {
+    setProfessors((prevProfessors) =>
+      prevProfessors.filter((p) => p.id !== professor.id)
+    );
+  };
 
   return (
     <>
@@ -24,13 +65,19 @@ export default function ProfessorPage() {
       </div>
 
       <div className="pt-4">
-        <ProfessorTable />
+        <ProfessorTable
+          professors={professors}
+          loading={loading}
+          onHandleProfessor={handleProfessor}
+          onDelete={onDelete}
+        />
       </div>
 
       <ProfessorAddDialog
         isOpen={professorAddDialogOpen}
         setIsOpen={setProfessorAddDialogOpen}
         professor={undefined}
+        onHandleProfessor={handleProfessor}
       />
     </>
   );

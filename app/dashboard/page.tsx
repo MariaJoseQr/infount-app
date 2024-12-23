@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/dashboard/Sidebar";
@@ -16,18 +15,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signOut } from 'next-auth/react'
 
 export default function DashboardPage() {
-  const { status } = useSession();
   const router = useRouter();
-  const [activePage, setActivePage] = useState("");
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login"); // Redirige al inicio de sesión si no está autenticado
-    }
-  }, [status, router]);
+  const [activePage, setActivePage] = useState("");
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
   useEffect(() => {
     const initialPage = window.location.hash || "#docentes";
@@ -44,12 +37,17 @@ export default function DashboardPage() {
     };
   }, []);
 
-  if (status === "loading") return <p>Cargando...</p>;
   if (!activePage) return null;
 
   const handlePageChange = (url: string) => {
     window.location.hash = url;
     setActivePage(url);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    router.push("/login");
   };
 
   return (
@@ -68,7 +66,7 @@ export default function DashboardPage() {
           {activePage === "#registros" && <RecordPage />}
         </div>
 
-        <DropdownMenu>
+        <DropdownMenu open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
           <DropdownMenuTrigger asChild>
             <div className="flex fixed top-5 right-5 bg-foreground shadow-lg z-50 rounded-full py-2 px-5 w-auto items-center cursor-pointer">
               <CircleUserRound className="pr-2 w-8 h-8" />
@@ -85,7 +83,7 @@ export default function DashboardPage() {
             </Link>
             <DropdownMenuItem
               className="cursor-pointer"
-              onClick={() => signOut()}
+              onSelect={handleLogout}
             >
               <LogOut />
               Cerrar Sesión
