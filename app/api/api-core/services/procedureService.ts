@@ -165,7 +165,7 @@ export class ProcedureService {
             if (data.state.id == 1)
                 return new CustomResponse<ProcedureDTO>(null, ResultType.WARNING, "Estado no válido", 400);
 
-            //TODO: VERIFICAR USUARIO EXISTENTE PERTENECE AL PROFESSOR
+            //TODO: VERIFICAR EL DOCENTE YA NO TIENE UN TRAMITE EN PROCESO (ES DECIR NO ESTE "ENTREGADO ")
             const existingProcedure = await ProcedureDAO.getProcedureById(data.id);
             console.log("existingProcedure: ", existingProcedure)
             if (!existingProcedure) {

@@ -7,12 +7,35 @@ import { User } from "@prisma/client";
 export class UserDAO {
 
     static async getUserById(id: number): Promise<User | null> {
-        if (!id) {
-            throw new Error("El ID del usuario es necesario");
+        try {
+            if (!id) {
+                throw new Error("El ID del usuario es necesario");
+            }
+            return db.user.findUnique({
+                where: { id }
+            });
+        } catch (error) {
+            if (error instanceof Error) throw new Error(error.message);
+            throw new Error("Error desconocido al registrar la tesis");
         }
-        return db.user.findUnique({
-            where: { id }
-        });
+    }
+
+    static async existsUsername(nombre: string, id?: number): Promise<User | null> {
+        try {
+
+            const user = await db.user.findFirst({
+                where: {
+                    username: nombre,
+                    isDeleted: false,
+                    ...(id ? { id: { not: id } } : {})
+                },
+            });
+
+            return user; // Retorna el objeto si existe, null si no
+        } catch (error) {
+            if (error instanceof Error) throw new Error(error.message);
+            throw new Error("Error desconocido al registrar la tesis");
+        }
     }
 
     /*

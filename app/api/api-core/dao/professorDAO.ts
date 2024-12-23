@@ -19,6 +19,7 @@ export class ProfessorDAO {
                     grade: { select: { id: true, abbreviation: true } },
                     createdAt: true
                 },
+                orderBy: { createdAt: 'desc' }
             });
             return proffesors;
 
@@ -26,6 +27,24 @@ export class ProfessorDAO {
             if (error instanceof Error)
                 console.error(error);
             throw new Error("Error desconocido al obtener los profesores");
+        }
+    }
+
+    static async existsCode(code: string, id?: number): Promise<Professor | null> {
+        try {
+
+            const professor = await db.professor.findFirst({
+                where: {
+                    code: code,
+                    isDeleted: false,
+                    ...(id ? { id: { not: id } } : {})
+                },
+            });
+
+            return professor; // Retorna el objeto si existe, null si no
+        } catch (error) {
+            if (error instanceof Error) throw new Error(error.message);
+            throw new Error("Error desconocido al registrar la tesis");
         }
     }
 
@@ -81,7 +100,7 @@ export class ProfessorDAO {
                 updatedAt: new Date(),
             }, include: {
                 user: {
-                    select: { id: true, name: true }
+                    select: { id: true, name: true, cellphone: true, email: true }
                 },
                 grade: { select: { id: true, abbreviation: true } },
 

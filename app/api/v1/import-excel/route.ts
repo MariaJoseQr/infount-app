@@ -33,8 +33,8 @@ export async function POST(request: Request) {
             for (const role of roles) {
                 const professorCode = item[role];
                 if (professorCode && professorCode !== "-") {
-                    const professor = await db.professor.findUnique({
-                        where: { code: String(professorCode) }
+                    const professor = await db.professor.findFirst({
+                        where: { code: String(professorCode), isDeleted: false }
                     });
 
                     if (professor) {

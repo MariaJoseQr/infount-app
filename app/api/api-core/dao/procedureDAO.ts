@@ -67,6 +67,7 @@ export class ProcedureDAO {
                     },
                     createdAt: true
                 },
+                orderBy: { createdAt: 'desc' }
             });
             return procedures;
 

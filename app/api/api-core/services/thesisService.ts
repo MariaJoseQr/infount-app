@@ -39,6 +39,12 @@ export class ThesisService {
             if (!validateOneThesis(data))
                 return new CustomResponse<ThesisDTO>(null, ResultType.WARNING, "La lógica de validación adicional no se cumplió.", 400);
 
+            //TODO: Si pueden repetirse nombres? 
+            // const existingName = await ThesisDAO.existsName(data.name);
+            // if (existingName != null) {
+            //     return new CustomResponse<ThesisDTO>(null, ResultType.WARNING, "El nombre del registro ya existe.", 422);
+            // }
+
             // Preparar datos para la inserción
             const newThesisData: Prisma.ThesisCreateInput = {
                 name: data.name,
