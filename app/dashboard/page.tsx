@@ -25,7 +25,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/auth/login"); // Redirige al inicio de sesión si no está autenticado
+      router.push("/login"); // Redirige al inicio de sesión si no está autenticado
     }
   }, [status, router]);
 
