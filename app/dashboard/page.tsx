@@ -15,12 +15,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { status } = useSession();
 
   const [activePage, setActivePage] = useState("");
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (status !== "authenticated") {
+      router.push("/login"); // Redirige al inicio de sesión si no está autenticado
+    }
+  }, [status, router]);
 
   useEffect(() => {
     const initialPage = window.location.hash || "#docentes";
@@ -44,11 +53,11 @@ export default function DashboardPage() {
     setActivePage(url);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    router.push("/login");
-  };
+  // const handleLogout = () => {
+  //   localStorage.removeItem("accessToken");
+  //   localStorage.removeItem("refreshToken");
+  //   router.push("/login");
+  // };
 
   return (
     <>
@@ -83,7 +92,7 @@ export default function DashboardPage() {
             </Link>
             <DropdownMenuItem
               className="cursor-pointer"
-              onSelect={handleLogout}
+              onClick={() => signOut()}
             >
               <LogOut />
               Cerrar Sesión

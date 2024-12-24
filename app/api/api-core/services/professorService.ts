@@ -3,7 +3,7 @@
 import { CustomResponse, ResultType } from "@/app/beans/customResponse";
 import { ProfessorDAO } from "../dao/professorDAO";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
-// import { ProfessorReq } from "@/app/beans/request/professorReq";
+import bcrypt from "bcrypt"
 import { UserDAO } from "../dao/userDAO";
 import { UserReq } from "@/app/beans/request/userReq";
 import { ProfessorReq } from "@/app/beans/request/professorReq";
@@ -43,7 +43,7 @@ export class ProfessorService {
 
             const userReq: UserReq = {
                 username: data.email,
-                password: data.code,
+                password: await bcrypt.hash(data.code, 10),
                 name: data.name,
                 email: data.email,
                 cellphone: data.cellphone,

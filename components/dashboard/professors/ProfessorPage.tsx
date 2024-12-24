@@ -5,28 +5,33 @@ import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { ProfessorDTO } from "@/app/beans/dto/professorDTO";
+import { useSession } from "next-auth/react";
 
 export default function ProfessorPage() {
   const [professorAddDialogOpen, setProfessorAddDialogOpen] = useState(false);
   const [professors, setProfessors] = useState<ProfessorDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const { status } = useSession();
 
   useEffect(() => {
     const fetchProfessors = async () => {
       setLoading(true);
+      if (status === "authenticated") {
+        // console.log("TRAE PROFESOREEEEEEEEEEES: ", status);
+        try {
+          const response = await axios.get("/api/professors");
 
-      try {
-        const response = await axios.get("/api/professors");
-
-        setProfessors(response.data.result || []);
-      } catch (error) {
-        console.error("Error fetching professors:", error);
-      } finally {
-        setLoading(false);
+          setProfessors(response.data.result || []);
+        } catch (error) {
+          console.error("Error fetching professors:", error);
+        } finally {
+          setLoading(false);
+        }
       }
+
     };
     fetchProfessors();
-  }, []);
+  }, [status]);
 
   const handleProfessor = (professor: ProfessorDTO) => {
     setProfessors((prevProfessors) => {

@@ -24,6 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { ArrowLeftIcon } from "lucide-react";
+import { signIn } from "next-auth/react"
 
 const loginSchema = z.object({
   email: z.string().min(1, "El campo es obligatorio").email("Correo inválido"),
@@ -42,12 +43,27 @@ export default function LoginForm() {
     mode: "onChange",
   });
 
+  // const {formState:{errors}} =useForm();
+  const [error, setError] = useState<string | null>(null);
+
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
     console.log("data login: ", data);
 
     try {
-      router.push("/dashboard");
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      console.log(res)
+      if (res && typeof res.error === "string" && res.error !== null) {
+        setError(res.error)
+      } else {
+        router.push('/dashboard')
+        router.refresh()
+      }
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
     } finally {
@@ -70,6 +86,7 @@ export default function LoginForm() {
                   setForgotPassword(false)
                 )}
               >
+
                 <div className="w-full space-y-4">
                   <FormField
                     name="email"
@@ -115,7 +132,11 @@ export default function LoginForm() {
           <CardContent>
             <Form {...loginForm}>
               <form onSubmit={loginForm.handleSubmit(handleLogin)}>
+
                 <div className="w-full space-y-4">
+                  {error && (
+                    <p className="bg-red-500 text-lg text-white p-3 rounded mb-2">{error}</p>
+                  )}
                   <FormField
                     name="email"
                     control={loginForm.control}
@@ -167,6 +188,8 @@ export default function LoginForm() {
                     {isLoading ? "Ingresando..." : "Ingresar"}
                   </Button>
                 </div>
+
+
               </form>
             </Form>
           </CardContent>

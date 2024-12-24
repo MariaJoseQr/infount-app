@@ -5,28 +5,32 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useSession } from "next-auth/react";
 
 export default function RecordPage() {
   const [procedureAddDialogOpen, setProcedureAddDialogOpen] = useState(false);
   const [procedures, setProcedures] = useState<ProcedureDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const { status } = useSession();
 
   useEffect(() => {
     const fetchProcedures = async () => {
-      setLoading(true);
+      if (status === "authenticated") {
+        setLoading(true);
 
-      try {
-        const response = await axios.get("/api/procedures");
+        try {
+          const response = await axios.get("/api/procedures");
 
-        setProcedures(response.data.result || []);
-      } catch (error) {
-        console.error("Error fetching procedures:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+          setProcedures(response.data.result || []);
+        } catch (error) {
+          console.error("Error fetching procedures:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+    }
     fetchProcedures();
-  }, []);
+  }, [status]);
 
   const handleAddProcedure = (newProcedure: ProcedureDTO) => {
     setProcedures((prevProcedures) => [...prevProcedures, newProcedure]);
