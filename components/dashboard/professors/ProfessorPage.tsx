@@ -17,7 +17,7 @@ export default function ProfessorPage() {
     const fetchProfessors = async () => {
       setLoading(true);
       if (status === "authenticated") {
-        console.log("TRAE PROFESOREEEEEEEEEEES: ", status);
+        // console.log("TRAE PROFESOREEEEEEEEEEES: ", status);
         try {
           const response = await axios.get("/api/professors");
 

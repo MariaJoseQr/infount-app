@@ -16,7 +16,6 @@ export default function RecordPage() {
   useEffect(() => {
     const fetchProcedures = async () => {
       if (status === "authenticated") {
-        console.log("TRAE PROFESOREEEEEEEEEEES: ", status);
         setLoading(true);
 
         try {
@@ -31,7 +30,7 @@ export default function RecordPage() {
       };
     }
     fetchProcedures();
-  }, []);
+  }, [status]);
 
   const handleAddProcedure = (newProcedure: ProcedureDTO) => {
     setProcedures((prevProcedures) => [...prevProcedures, newProcedure]);

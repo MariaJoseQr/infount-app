@@ -193,9 +193,9 @@ export function ProfessorAddDialog({
                                 >
                                   {field.value
                                     ? professorGrades.find(
-                                        (grade) =>
-                                          grade.id === Number(field.value)
-                                      )?.name
+                                      (grade) =>
+                                        grade.id === Number(field.value)
+                                    )?.name
                                     : "Seleccione el grado"}
                                   <ChevronsUpDownIcon className="ml-auto h-4 w-4 text-gray-500" />
                                 </Button>
@@ -300,8 +300,8 @@ export function ProfessorAddDialog({
                 {isLoading
                   ? "Guardando..."
                   : professor
-                  ? "Actualizar"
-                  : "Guardar"}
+                    ? "Actualizar"
+                    : "Guardar"}
               </Button>
             </DialogFooter>
           </form>
